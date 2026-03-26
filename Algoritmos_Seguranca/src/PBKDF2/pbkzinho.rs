@@ -9,10 +9,27 @@
 -tamanho da chave -> em bits
 */
 
-//  mistura senha + salt
-// aplica hash
-// repete isso milhares de vezes
-// combina os resultados com xor
+/* formula:
+ DK = T1 || T2 || ... || Tn
+ Caba bloco é calculado assim:
+
+Ti = U1 xor U2 xor ... xor Un
+
+U1 = H(p s i)
+U2 = H(P, U1)
+U3 = H(P, U2)
+Un = H(P, Un-1)
+
+a saída anterior é entrada da próxima iteração
+ */
+
+
+ /*mistura senha + salt
+ aplica hash
+ repete isso milhares de vezes
+ combina os resultados com xor
+ 
+ */
 
 
 
