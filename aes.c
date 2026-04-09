@@ -14,6 +14,25 @@
 há um conjunto [0, 255] que são todos os valores possíveis para um byte*/
 // o elemento "zero" é o próprio 0
 
+/* /\/\/\/\/\ ADIÇÃO /\/\/\/\/\*/
+
+// há uma operação chamada de adição que se aplica a            |
+// quaisquer dois elementos do conjunto e cujo resultado        |
+// deve ser um elemento desse conjunto                          |-> XOR ou "Ou exclusivo"                                                              
+// a operação precisa ser comutativa, associativa, ter          |
+// elemento neutro e cada elemento ter um inverso               |
+
+/* /\/\/\/\/\ MULTIPLICAÇÃO /\/\/\/\/\*/
+
+// há uma operação q iremos chamar de multiplicação
+// ela é semelhante a adição, mas o elemento "zero"
+// não possui inverso. além disso o elementro neutro
+// é chamado de "um"
+// a multiplicação tbm precisa ser distribuída em 
+// relação à adição
+
+// * sem correlação com os as operações aritméticas homonimas
+
 
 
 
