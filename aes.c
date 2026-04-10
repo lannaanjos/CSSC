@@ -53,8 +53,25 @@ há um conjunto [0, 255] que são todos os valores possíveis para um byte*/
 // contra ataque algébricos
 
 /* /\/\/\ EXPANSÃO DA CHAVE /\/\/\*/
-// o aes possui várias rodadas de cálculo
+// o aes possui várias rodadas de cálculo sobre a mensagem inicial, aplica uma série de 
+// transformações nela e chega ao resultado final (a cifra).
+// os dados sendo trabalhados são o "state"
 
+/*PSEUDOCÓDIGO
+
+estado = mensagem
+estado = round(mensagem)
+estado = round(mensagem)
+estado = round(mensagem)
+...
+estado = round(mensagem)
+cifra = estado
+*/
+
+// não se usa a chave original em cada um dos estados, mas uma série de chaves derivadas da mesma
+// aí precisa de um algoritmo de derivação de chave (argon2, pbkdf2, rijndael key schedule)
+
+/* /\/\/\/\ VISÃO GERAL KEY DERIVATION /\/\/\/\*/
 
 
 
