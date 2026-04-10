@@ -43,6 +43,18 @@ há um conjunto [0, 255] que são todos os valores possíveis para um byte*/
 // multiplique-os e divida o resultado por um agente redutor
 // o resto da divisão é o resultado da multiplicação
 
+/* /\/\/\ RIJNDAEL S-BOX /\/\/\*/
+
+// a rijndael s-box é uma tabela de consulta para transformar bytes de forma não linear
+// há a tabela para função direta e p inversa
+
+// 1° calcule o inverso multiplicativo do byte  (byte que multiplicado por ele resulte em "um")
+// 2° submeta os 8 bits de resultado a uma transformação afim, com intuito de ficar mais resistente
+// contra ataque algébricos
+
+/* /\/\/\ EXPANSÃO DA CHAVE /\/\/\*/
+// o aes possui várias rodadas de cálculo
+
 
 
 
