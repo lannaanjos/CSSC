@@ -72,6 +72,12 @@ cifra = estado
 // aí precisa de um algoritmo de derivação de chave (argon2, pbkdf2, rijndael key schedule)
 
 /* /\/\/\/\ VISÃO GERAL KEY DERIVATION /\/\/\/\*/
+// o aes opera em blocos de 128 bits, entretanto usa chaves de 128, 192 ou 256 bits.
+// o algoritmo de expansão de chaves faz um conjunto de subchaves de 128 bits, uma para cada round
+// do algoritmo (q tbm depende do tamanho da chave: 10, 12 ou 14 respectivamente)
+
+// a partir da chave original, são feitas uma série de operações de shift (rotação) dos últimos
+// 4 bytes, sua transformação 
 
 
 
