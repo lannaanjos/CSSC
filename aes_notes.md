@@ -1,4 +1,4 @@
-/* /\/\/\ ADVANCED ENCRYPTION STANDARD /\/\/\*/
+# /\/\/\ ADVANCED ENCRYPTION STANDARD /\/\/\
 //o aes é um algoritmo cuja função principal recebe um bloco de 128 bits, uma chave do tamanho escolhido
 // edevolve uma cifra de 128 bits.
 
