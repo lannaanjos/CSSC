@@ -1,5 +1,5 @@
-# /\/\/\ ADVANCED ENCRYPTION STANDARD /\/\/\
-O AES é um algoritmo que recebe um bloco de 128 bits, uma chave do tamanho escolhido e devolve uma cifra de 128 bits.
+# /\ ADVANCED ENCRYPTION STANDARD /\
+O AES é um algoritmo que **recebe um bloco de 128 bits, uma chave do tamanho escolhido e devolve uma cifra de 128 bits.**
 
 Sua função inversa recebe a cifra de 128 bits e retorna um bloco de 128 bits. Caso seja a chave correta,  o resultado será idêntico ao bloco original.
 
@@ -7,28 +7,20 @@ O objetivo de uma boa cifra é que seja impossível encontrar a mensagem origina
 
 Para isso, tenta-se minimizar qualquer semelhança entre a mensagem original e a saída em diversas rodadas, os bytes sofrem modificações não lineares, mas reversíveis.
 
-/*todas as operações dentro do aes tratam os bytes como um corpo finito, ou seja, 
-há um conjunto [0, 255] que são todos os valores possíveis para um byte*/
-// o elemento "zero" é o próprio 0
+Todas as operações dentro do AES tratam os bytes como um corpo finito, ou seja, há um conjunto "[0, 255]" que são todos os valores possíveis para um byte, sendo o elemento "zero" o próprio 0.
 
-// * ops a seguir sem correlação com os as operações aritméticas homonimas
+> As operações a seguir não possuem correlação com suas operações aritméticas homônimas.
 
-/* /\/\/\/\/\ ADIÇÃO /\/\/\/\/\*/
 
-// há uma operação chamada de adição que se aplica a            |
-// quaisquer dois elementos do conjunto e cujo resultado        |
-// deve ser um elemento desse conjunto                          |-> XOR ou "Ou exclusivo"                                                              
-// a operação precisa ser comutativa, associativa, ter          |
-// elemento neutro e cada elemento ter um inverso               |
+## /\ ADIÇÃO /\ -> XOR ou "Ou exclusivo"
 
-/* /\/\/\/\/\ MULTIPLICAÇÃO /\/\/\/\/\*/
+A operação de adição se aplica a quaisquer dois elementos do conjunto e seu resultado deve ser um elemento desse conjunto.
+Essa operação precisa ser comutativa, associativa, ter elemento neutro e cada elemento ter um inverso.
 
-// há uma operação q iremos chamar de multiplicação             |
-// ela é semelhante a adição, mas o elemento "zero"             |
-// não possui inverso. além disso o elementro neutro            | -> AND
-// é chamado de "um"                                            |
-// a multiplicação tbm precisa ser distribuída em               |
-// relação à adição                                             |
+## /\ MULTIPLICAÇÃO /\ -> AND
+
+A operação q iremos chamar de multiplicação é semelhante a adição, mas seu elemento "zero" não possui inverso. Além disso o elementro neutro é chamado de "um".
+Ademais, multiplicação também precisa ser distribuída em relação à adição.
 
 // 1. trate cada coperando como um polinônio com base na sua representação binária
 // ex: 6 -> 110 em binário, então vira x²+x
