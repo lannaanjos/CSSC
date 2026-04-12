@@ -12,30 +12,30 @@ Todas as operações dentro do AES tratam os bytes como um corpo finito, ou seja
 > As operações a seguir não possuem correlação com suas operações aritméticas homônimas.
 
 
-## /\ ADIÇÃO /\ -> XOR ou "Ou exclusivo"
+## /\ ADIÇÃO -> XOR ou "Ou exclusivo" /\
 
 A operação de adição se aplica a quaisquer dois elementos do conjunto e seu resultado deve ser um elemento desse conjunto.
 Essa operação precisa ser comutativa, associativa, ter elemento neutro e cada elemento ter um inverso.
 
-## /\ MULTIPLICAÇÃO /\ -> AND
+## /\ MULTIPLICAÇÃO -> AND /\
 
 A operação q iremos chamar de multiplicação é semelhante a adição, mas seu elemento "zero" não possui inverso. Além disso o elementro neutro é chamado de "um".
 Ademais, multiplicação também precisa ser distribuída em relação à adição.
 
-**Passo a passo da Adição:**
+**Passo a passo da Multiplicação:**
 
-1. Trate cada coperando como um polinônio com base na sua representação binária.<br>ex 1: 6 -> 110 em binário, então vira x²+x<br>110 ==> 4 + 2 + 0 ==> x² + 2 + 0<br> ex 2: 11 -> 1011 em binário, então vira x³ + x + 1<br>1011 ==> 8 + 0 + 2 + 1 ==> x³ + x  1
+1. Trate cada coperando como um polinônio com base na sua representação binária.<br>ex: 6 -> 110 em binário, então vira x²+x<br>110 ==> 4 + 2 + 0 ==> x² + 2 + 0<br><br> ex : 11 -> 1011 em binário, então vira x³ + x + 1<br>1011 ==> 8 + 0 + 2 + 1 ==> x³ + x  1
 2. Multiplique-os e divida o resultado por um agente redutor.
 3. Pegue o resto da divisão, este é o resultado da multiplicação.
 
-/* /\/\/\ RIJNDAEL S-BOX /\/\/\*/
+## /\ RIJNDAEL S-BOX /\
 
-// a rijndael s-box é uma tabela de consulta para transformar bytes de forma não linear
-// há a tabela para função direta e p inversa
+A rijndael s-box é uma tabela de consulta para transformar bytes de forma não linear. Existe a tabela para função direta e para a inversa.
 
-// 1° calcule o inverso multiplicativo do byte  (byte que multiplicado por ele resulte em "um")
-// 2° submeta os 8 bits de resultado a uma transformação afim, com intuito de ficar mais resistente
-// contra ataque algébricos
+**Passo a passo da Rijndael S-Box:**
+
+1. Calcule o inverso multiplicativo do byte (byte que multiplicado por ele resulte em "um").
+2. Submeta os 8 bits de resultado a uma transformação afim, com intuito de ficar mais resistente contra ataque algébricos.
 
 /* /\/\/\ EXPANSÃO DA CHAVE /\/\/\*/
 // o aes possui várias rodadas de cálculo sobre a mensagem inicial, aplica uma série de 
