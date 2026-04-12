@@ -42,26 +42,23 @@ O AES possui várias rodadas de cálculo sobre a mensagem inicial. Aplica-se uma
 Os dados que estão sendo trabalhados são denominados como "state".
 
 ```
-```
-```
+
 # PSEUDOCÓDIGO:
 
 estado = mensagem
-estado = round(mensagem)
-estado = round(mensagem)
-estado = round(mensagem)
+estado = round(estado)
+estado = round(estado)
+estado = round(estado)
 ...
-estado = round(mensagem)
+estado = round(estado)
 cifra = estado
+
 ```
 
 Não se usa a chave original em cada um dos estados, mas uma série de chaves derivadas da mesma. Para isso, é preciso um algoritmo de derivação de chave (argon2, pbkdf2, rijndael key schedule, etc).
 
-/* /\/\/\/\ VISÃO GERAL KEY DERIVATION /\/\/\/\*/
-// o aes opera em blocos de 128 bits, entretanto usa chaves de 128, 192 ou 256 bits.
-// o algoritmo de expansão de chaves faz um conjunto de subchaves de 128 bits, uma para cada round
-// do algoritmo (q tbm depende do tamanho da chave: 10, 12 ou 14 respectivamente)
-
-// a partir da chave original, são feitas uma série de operações de shift (rotação) dos últimos
-// 4 bytes, sua transformação de acordo com o s-box e adição de potência de 2.
-// qnd se produz bytes suficientes para todas as rodadas acaba a expansão
+# /\ VISÃO GERAL KEY DERIVATION /\
+O AES opera em blocos de 128 bits, entretanto usa chaves de 128, 192 ou 256 bits.
+O algoritmo de expansão de chaves faz um conjunto de subchaves de 128 bits, uma para cada round do algoritmo (que também depende do tamanho da chave: 10, 12 ou 14 respectivamente).
+A partir da chave original, são feitas uma série de operações de shift (rotação) dos últimos 4 bytes, sua transformação de acordo com o S-Box e adição de potência de 2.
+Ao produzir bytes suficientes para todas as rodadas acaba a expansão.
