@@ -37,12 +37,14 @@ A rijndael s-box é uma tabela de consulta para transformar bytes de forma não 
 1. Calcule o inverso multiplicativo do byte (byte que multiplicado por ele resulte em "um").
 2. Submeta os 8 bits de resultado a uma transformação afim, com intuito de ficar mais resistente contra ataque algébricos.
 
-/* /\/\/\ EXPANSÃO DA CHAVE /\/\/\*/
-// o aes possui várias rodadas de cálculo sobre a mensagem inicial, aplica uma série de 
-// transformações nela e chega ao resultado final (a cifra).
-// os dados sendo trabalhados são o "state"
+## /\ EXPANSÃO DA CHAVE /\
+O AES possui várias rodadas de cálculo sobre a mensagem inicial. Aplica-se uma série de transformações nela e chega-se ao resultado final (a cifra).
+Os dados que estão sendo trabalhados são denominados como "state".
 
-/*PSEUDOCÓDIGO
+```
+```
+```
+# PSEUDOCÓDIGO:
 
 estado = mensagem
 estado = round(mensagem)
@@ -51,10 +53,9 @@ estado = round(mensagem)
 ...
 estado = round(mensagem)
 cifra = estado
-*/
+```
 
-// não se usa a chave original em cada um dos estados, mas uma série de chaves derivadas da mesma
-// aí precisa de um algoritmo de derivação de chave (argon2, pbkdf2, rijndael key schedule)
+Não se usa a chave original em cada um dos estados, mas uma série de chaves derivadas da mesma. Para isso, é preciso um algoritmo de derivação de chave (argon2, pbkdf2, rijndael key schedule, etc).
 
 /* /\/\/\/\ VISÃO GERAL KEY DERIVATION /\/\/\/\*/
 // o aes opera em blocos de 128 bits, entretanto usa chaves de 128, 192 ou 256 bits.
