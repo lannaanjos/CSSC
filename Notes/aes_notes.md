@@ -22,15 +22,11 @@ Essa operação precisa ser comutativa, associativa, ter elemento neutro e cada 
 A operação q iremos chamar de multiplicação é semelhante a adição, mas seu elemento "zero" não possui inverso. Além disso o elementro neutro é chamado de "um".
 Ademais, multiplicação também precisa ser distribuída em relação à adição.
 
-// 1. trate cada coperando como um polinônio com base na sua representação binária
-// ex: 6 -> 110 em binário, então vira x²+x
-// 110 ==> 4 + 2 + 0 ==> x² + 2 + 0
+**Passo a passo da Adição:**
 
-// ex: 11 -> 1011 em binário, então vira x³ + x + 1
-// 1011 ==> 8 + 0 + 2 + 1 ==> x³ + x  1
-
-// multiplique-os e divida o resultado por um agente redutor
-// o resto da divisão é o resultado da multiplicação
+1. Trate cada coperando como um polinônio com base na sua representação binária.<br>ex 1: 6 -> 110 em binário, então vira x²+x<br>110 ==> 4 + 2 + 0 ==> x² + 2 + 0<br> ex 2: 11 -> 1011 em binário, então vira x³ + x + 1<br>1011 ==> 8 + 0 + 2 + 1 ==> x³ + x  1
+2. Multiplique-os e divida o resultado por um agente redutor.
+3. Pegue o resto da divisão, este é o resultado da multiplicação.
 
 /* /\/\/\ RIJNDAEL S-BOX /\/\/\*/
 
