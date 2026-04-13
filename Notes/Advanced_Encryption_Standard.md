@@ -61,7 +61,6 @@ O AES possui várias rodadas de cálculo sobre a mensagem inicial. Aplica-se uma
 Os dados que estão sendo trabalhados são denominados como "state".
 
 ```
-
 # PSEUDOCÓDIGO:
 
 estado = mensagem
