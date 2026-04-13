@@ -32,6 +32,12 @@
 #define TAM_MAX_CHAVE_EXPANDIDA 240
 
 // Constantes MixColumns
-#define GF_POLINIMONIO_IRREDUTIVEL 0x1B
+#define GF_POLINOMIO_IRREDUTIVEL 0x1B
+#define GF_TRANSFORMACAO_AFIM 0x63
 
-// 
+// Constantes do Key Schedule 
+// RCON (Round Constant) são constantes 
+
+
+
+
