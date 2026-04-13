@@ -76,7 +76,11 @@ b3  b7  b11 b15
 ```
 
 **Passo a passo das rodadas:**
-
+1. O estado é adicionado à chave da rodada.<br>``estado = estado ^ chave(0)``
+2. Nas rodadas seguintes, cada vyte do estado é transformado conforme o S-Box.<br>``Para cada byte b no estado:<br> estado[b] = S(estado[b])``
+3. Depois as linhas são rotacionadas à esquerda.
+4. Depois, em cada coluna da matriz, os bytes são combinados com todos os demais bytes da mesma coluna (OBS: Isso não ocorre na última rodada).
+5. Ao final, a chave da rodada é somada ao estado.
 
 ```
 ```
