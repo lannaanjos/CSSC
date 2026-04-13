@@ -29,8 +29,9 @@
 // Key Schedule produz (Nr + 1) subchaves de 128 bits cada.
 // Máximo = AES-256 -> 14 + 1 = subchaves -> 15 x 16 = 240 bytes
 
+#define TAM_MAX_CHAVE_EXPANDIDA 240
+
 // Constantes MixColumns
 #define GF_POLINIMONIO_IRREDUTIVEL 0x1B
 
-#define TAMANHO_BLOCO_AES 16 // 16 bytes, 128 bits
-#define AES_16_BYTES_KEY 16
+// 
