@@ -48,7 +48,6 @@ a x 4 = xtime(xtime(a))
 a x 5 = xtime(xtime(a)) XOR a 
 
 ```
-
 ## /\ RIJNDAEL S-BOX /\
 
 A rijndael s-box é uma tabela de consulta para transformar bytes de forma não linear. Existe a tabela para função direta e para a inversa.
