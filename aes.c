@@ -6,10 +6,10 @@
 
 // Ela funciona em rodadas que se repetem conforme o tamanho da chave da entrada.
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <stdint.h>
+
+// CONSTANTES
 
 #define BITS_POR_BYTES 8
-
-
-u
+#define TAMANHO_BLOCO_AES 16 // 16 bytes, 128 bits
+#define AES_16_BYTES_KEY 16
