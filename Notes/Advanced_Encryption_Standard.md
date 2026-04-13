@@ -62,3 +62,21 @@ O AES opera em blocos de 128 bits, entretanto usa chaves de 128, 192 ou 256 bits
 O algoritmo de expansão de chaves faz um conjunto de subchaves de 128 bits, uma para cada round do algoritmo (que também depende do tamanho da chave: 10, 12 ou 14 respectivamente).
 A partir da chave original, são feitas uma série de operações de shift (rotação) dos últimos 4 bytes, sua transformação de acordo com o S-Box e adição de potência de 2.
 Ao produzir bytes suficientes para todas as rodadas acaba a expansão.
+
+# /\ RODADAS /\
+Para evitar que a encriptação seja quebrada na força bruta, são feitas várias rodadas em cima do estado. O objetivo é que os bytes da entrada sejam combinados com os vários bytes da chave.
+Ou seja, busca-se evitar que parte da cifra depende somente de parte da chave de encriptação.
+Os bytes do estado são armazenados numa matriz 4x4 por coluna.
+Ex:
+```
+b0  b4  b8  b12 
+b1  b5  b9  b13 
+b2  b6  b10 b14 
+b3  b7  b11 b15 
+```
+
+**Passo a passo das rodadas:**
+
+
+```
+```
