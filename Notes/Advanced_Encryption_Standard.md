@@ -63,7 +63,7 @@ O algoritmo de expansão de chaves faz um conjunto de subchaves de 128 bits, uma
 A partir da chave original, são feitas uma série de operações de shift (rotação) dos últimos 4 bytes, sua transformação de acordo com o S-Box e adição de potência de 2.
 Ao produzir bytes suficientes para todas as rodadas acaba a expansão.
 
-# /\ RODADAS /\
+## /\ RODADAS /\
 Para evitar que a encriptação seja quebrada na força bruta, são feitas várias rodadas em cima do estado. O objetivo é que os bytes da entrada sejam combinados com os vários bytes da chave.
 Ou seja, busca-se evitar que parte da cifra depende somente de parte da chave de encriptação.
 Os bytes do estado são armazenados numa matriz 4x4 por coluna.
@@ -82,5 +82,10 @@ b3  b7  b11 b15
 4. Depois, em cada coluna da matriz, os bytes são combinados com todos os demais bytes da mesma coluna (OBS: Isso não ocorre na última rodada).
 5. Ao final, a chave da rodada é somada ao estado.
 
-```
-```
+## /\ DECIFRAGEM /\
+O processo de decifragem consiste basicamente no inverso das etapas anteriormente mostradas.
+**Passo a passo:**
+1. No início de cada rounds, adiciona-se a chave do round correspondente (que agora estão de trás para frente).
+2. Para desfazer a mistura de colunas, usa-se a matriz inversa.
+3. Faz-se um shift para a direita.
+4. E, por fim, para desfazer a primeira etapa faz-se uso de uma tabela S-Box invertida.
