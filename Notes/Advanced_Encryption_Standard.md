@@ -1,8 +1,6 @@
 # /\ ADVANCED ENCRYPTION STANDARD /\
-O AES é um algoritmo que **recebe um bloco de 128 bits, uma chave do tamanho escolhido e devolve uma cifra de 128 bits.**
-
-Sua função inversa recebe a cifra de 128 bits e retorna um bloco de 128 bits. Caso seja a chave correta,  o resultado será idêntico ao bloco original.
-
+O AES é um algoritmo que **recebe um bloco de 128 bits, uma chave do tamanho escolhido e devolve uma cifra de 128 bits.**Sua função inversa recebe a cifra de 128 bits e retorna um bloco de 128 bits. Caso seja a chave correta,  o resultado será idêntico ao bloco original.
+Ou seja, ele é um cifrador de bloco simétrico, o que quer dizer que a mesma chave é usada para cifrar e decifrar.
 O objetivo de uma boa cifra é que seja impossível encontrar a mensagem original sem a chave de criptografia.
 
 Para isso, tenta-se minimizar qualquer semelhança entre a mensagem original e a saída em diversas rodadas, os bytes sofrem modificações não lineares, mas reversíveis.
@@ -17,16 +15,39 @@ Todas as operações dentro do AES tratam os bytes como um corpo finito, ou seja
 A operação de adição se aplica a quaisquer dois elementos do conjunto e seu resultado deve ser um elemento desse conjunto.
 Essa operação precisa ser comutativa, associativa, ter elemento neutro e cada elemento ter um inverso.
 
-## /\ MULTIPLICAÇÃO -> AND /\
+## /\ MULTIPLICAÇÃO -> GF(2⁸) /\
 
 A operação q iremos chamar de multiplicação é semelhante a adição, mas seu elemento "zero" não possui inverso. Além disso o elementro neutro é chamado de "um".
 Ademais, multiplicação também precisa ser distribuída em relação à adição.
-
+Ela é uma multiplicação de polinômios em GF(2⁸), o corpo de Galois de 256 elementos.
 **Passo a passo da Multiplicação:**
 
 1. Trate cada coperando como um polinônio com base na sua representação binária.<br>ex: 6 -> 110 em binário, então vira x²+x<br>110 ==> 4 + 2 + 0 ==> x² + 2 + 0<br><br> ex : 11 -> 1011 em binário, então vira x³ + x + 1<br>1011 ==> 8 + 0 + 2 + 1 ==> x³ + x  1
 2. Multiplique-os e divida o resultado por um agente redutor.
 3. Pegue o resto da divisão, este é o resultado da multiplicação.
+
+Seu objetivo é receber dois bytes e retornar um byte, e ser reversível (exceto para o zero).
+Ao invés de tratar um byte como um número inteiro, o tratamos como um polinômio cujos coeficientes são 0 ou 1. Multiplicar dois bytes é, então, multiplicar os dois polinômios, com a regra de que os polinômios são calculados em módulo 2.
+Entretanto, `x⁵ + x⁴ + x³ + + x` tem grau 5, e não cabe em um byte (bytes suportam até grau 7, mas o resultado da multiplicação pode extrapolar seu tamnho máximo).
+Por isso, a solução é dividir o resultado pelo módulo fixo ``x⁸ + x⁴ + x³ + x + 1`` e ficar com o resto. Isso garante que o grau do resultado nunca passe de 7 e sempre caiba em um byte.
+O polinômio escolhido foi escolhido pelos criadores do AES por ser irredutível, ele não tem fatores, o que garante que todos elemente não-nulo tenha um inverso multiplicativo.
+Essa multiplicação é usada no MixColumns do AES, combinando com os valores *1, 2, 3*.
+Um atalho para isso é a função, normalmente, denominada ``xtime``. Com ela, deslocamos o byte 1 bit à esquerda. Se o bit mais significativo era 1, é feito o XOR com 0x1b.
+
+```
+uint8_t xtime(uint8_t a){
+  return (a << 1) ^((a & 0x80) ? 0x1b : 0x00);
+}
+```
+
+Qualquer multiplicação maior se constrói a partir daí, por exemplo:
+
+```
+a x 3 = a x (2 + 1) = xtime(a) XOR a 
+a x 4 = xtime(xtime(a))
+a x 5 = xtime(xtime(a)) XOR a 
+
+```
 
 ## /\ RIJNDAEL S-BOX /\
 
@@ -55,7 +76,8 @@ cifra = estado
 
 ```
 
-Não se usa a chave original em cada um dos estados, mas uma série de chaves derivadas da mesma. Para isso, é preciso um algoritmo de derivação de chave (argon2, pbkdf2, rijndael key schedule, etc).
+Não se usa a chave original em cada um dos estados, mas uma série de chaves derivadas da mesma. Para isso, é preciso um algoritmo de derivação de chave.
+**OBS:** Rijndael Key Schedule é o algoritmo de expansão de chave interno do AES. Argon2, PBKDF2 são KDFs de senha, usados para derivar chaves a partir de senhas humanas.
 
 # /\ VISÃO GERAL KEY DERIVATION /\
 O AES opera em blocos de 128 bits, entretanto usa chaves de 128, 192 ou 256 bits.
@@ -77,7 +99,7 @@ b3  b7  b11 b15
 
 **Passo a passo das rodadas:**
 1. O estado é adicionado à chave da rodada.<br>``estado = estado ^ chave(0)``
-2. Nas rodadas seguintes, cada vyte do estado é transformado conforme o S-Box.<br>``Para cada byte b no estado:<br> estado[b] = S(estado[b])``
+2. Nas rodadas seguintes, cada byte do estado é transformado conforme o S-Box.<br>``Para cada byte b no estado:<br> estado[b] = S(estado[b])``
 3. Depois as linhas são rotacionadas à esquerda.
 4. Depois, em cada coluna da matriz, os bytes são combinados com todos os demais bytes da mesma coluna (OBS: Isso não ocorre na última rodada).
 5. Ao final, a chave da rodada é somada ao estado.
