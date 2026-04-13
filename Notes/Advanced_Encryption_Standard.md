@@ -46,7 +46,6 @@ Qualquer multiplicação maior se constrói a partir daí, por exemplo:
 a x 3 = a x (2 + 1) = xtime(a) XOR a 
 a x 4 = xtime(xtime(a))
 a x 5 = xtime(xtime(a)) XOR a 
-
 ```
 ## /\ RIJNDAEL S-BOX /\
 
@@ -72,7 +71,6 @@ estado = round(estado)
 ...
 estado = round(estado)
 cifra = estado
-
 ```
 
 Não se usa a chave original em cada um dos estados, mas uma série de chaves derivadas da mesma. Para isso, é preciso um algoritmo de derivação de chave.
