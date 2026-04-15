@@ -37,18 +37,43 @@
 // x⁸ + x⁴ + x³ + x + 1 = 0x11B
 // usa-se 0x11B porque descartamos o bit x⁸
 #define GF_POLINOMIO_IRREDUTIVEL 0x1B
-
+// somada (xor) após transform afim enquanto gera a sbox, p nenhum byte mapear a si msm 
 #define GF_TRANSFORMACAO_AFIM 0x63
 
 // Constantes do Key Schedule 
 // RCON (Round Constant) são constantes usadas na expansão de chave para diferenciar cada rodada 
 // são potências de 2 em GF(2⁸) rcon[i] = 2^(i-1)
 // como o aes256 usat até 7 rodadas de expansõa, usamos 10 valores para cobrir tudo tranquilamente
-
 static const uint8_t RCON[10] = {
   0x01, 0x02, 0x04, 0x08, 0x10,
   0x20, 0x40, 0x80, 0x1B, 0x36
 };
+
+// /\ TABELAS GLOBAIS S-BOX
+// cada tabela tem 256 entradas (1/valor de byte)
+// sbox[x] -> substituto de x na cifragem
+// sbox_inversa[x] -> substituto de x na cifragem
+uint8_t sbox[256];
+uint8_t sbox_inversa[256];
+
+// /\ STATE 
+// o state é matrix 4x4 que representa o bloco sendo processado cada rodada 
+// estado[linha][coluna]
+typedef uint8_t state_t[4][4];
+
+// /\ ARITIMÉTICA EM GF(2⁸)
+uint8_t xtime(uint8_t valor);
+uint8_t multiplicacao_gf(uint8_t byte_x, uint8_t byte_y);
+uint8_t gf_inverso(uint8_t byte);
+
+// /\ S-BOX
+void gerar_sbox(void);
+
+// /\ EXPANSÃO DE CHAVE
+// recebe a chave e o nk e preenche o buffer de subkeys
+void expansao_chave(const uint8_t *chave, uint8_t subchaves[TAM_MAX_CHAVE_EXPANDIDA], int nk);
+
+
 
 
 
