@@ -30,7 +30,7 @@
 // Máximo = AES-256 -> 14 + 1 = subchaves -> 15 x 16 = 240 bytes
 #define TAM_CHAVE_128 176     // (10 + 1) x 16 = 176
 #define TAM_CHAVE_192 208     // (12 + 1) x 16 = 208
-#defime TAM_CHAVE_256 240     // (14 + 1) x 16 = 240
+#define TAM_CHAVE_256 240     // (14 + 1) x 16 = 240
 #define TAM_MAX_CHAVE_EXPANDIDA 240 // max possivel 
 
 // Constantes MixColumns
@@ -73,6 +73,27 @@ void gerar_sbox(void);
 // recebe a chave e o nk e preenche o buffer de subkeys
 void expansao_chave(const uint8_t *chave, uint8_t subchaves[TAM_MAX_CHAVE_EXPANDIDA], int nk);
 
+// /\ CIFRAGEM
+void substituir_bytes(state_t estado);
+void embaralhar_linhas(state_t estado);
+void misturar_colunas(state_t estado);
+void add_chave_rodada(state_t estado, const uint8_t *subkey_round);
+
+// /\ DECIFRAGEM
+void sub_bytes_inversos(state_t estado);
+void embaralahar_linhas_inverso(state_t estado);
+void misturar_colunas_invero(state_t estado);
+
+// /\ PRINCIPAIS FUNÇÕES DO FLUXO
+void cifragem(const uint8_t entrada_original[TAMANHO_BYTES_ENTRADA],
+                    const uint8_t subkeys[TAM_MAX_CHAVE_EXPANDIDA],
+                    uint8_t cifra[TAMANHO_BYTES_ENTRADA],
+                    int nk);
+
+void decifragem(const uint8_t cifra[TAMANHO_BYTES_ENTRADA],
+                    const uint8_t subkeys[TAM_MAX_CHAVE_EXPANDIDA],
+                    uint8_t entrada_original[TAMANHO_BYTES_ENTRADA],
+                    int nk);
 
 
 
