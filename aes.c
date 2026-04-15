@@ -21,7 +21,7 @@
 // Nk -> n° de palavras de 32 bits na chave original
 #define NK_128 4    // 4 x 32 = 128 bits -> 10 rodadas
 #define NK_192 6   // 6 x 32 = 192 bits -> 12 rodadas
-#define NK_256 8  // 8 x 32 = 256 bits -> 14 rodadais
+#define NK_256 8  // 8 x 32 = 256 bits -> 14 rodadas
 
 // Nr -> n° de rodadas  = Nk + 6
 #define NR(nk) ((nk)+6) // macro: Nr a partir do Nk
@@ -35,7 +35,7 @@
 
 // Constantes MixColumns
 // x⁸ + x⁴ + x³ + x + 1 = 0x11B
-// usa-se 0x11B porque descartamos o bit x⁸
+// usa-se 0x1B porque descartamos o bit x⁸
 #define GF_POLINOMIO_IRREDUTIVEL 0x1B
 // somada (xor) após transform afim enquanto gera a sbox, p nenhum byte mapear a si msm 
 #define GF_TRANSFORMACAO_AFIM 0x63
@@ -52,7 +52,7 @@ static const uint8_t RCON[10] = {
 // /\ TABELAS GLOBAIS S-BOX
 // cada tabela tem 256 entradas (1/valor de byte)
 // sbox[x] -> substituto de x na cifragem
-// sbox_inversa[x] -> substituto de x na cifragem
+// sbox_inversa[x] -> substituto de x na decifragem
 uint8_t sbox[256];
 uint8_t sbox_inversa[256];
 
@@ -81,8 +81,8 @@ void add_chave_rodada(state_t estado, const uint8_t *subkey_round);
 
 // /\ DECIFRAGEM
 void sub_bytes_inversos(state_t estado);
-void embaralahar_linhas_inverso(state_t estado);
-void misturar_colunas_invero(state_t estado);
+void embaralhar_linhas_inverso(state_t estado);
+void misturar_colunas_inverso(state_t estado);
 
 // /\ PRINCIPAIS FUNÇÕES DO FLUXO
 void cifragem(const uint8_t entrada_original[TAMANHO_BYTES_ENTRADA],
