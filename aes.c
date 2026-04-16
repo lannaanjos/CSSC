@@ -454,6 +454,15 @@ void decifragem(const uint8_t cifra[TAMANHO_BYTES_ENTRADA],
   }
 }
 
+//func auxliar p imprimir vetores de bytes em hexadecimal
+void imprimir_hex(const char* rotulo, const uint8_t* dados, size_t tamanho){
+  printf("%s: ", rotulo);
+  for (size_t i = 0; i < tamanho; i++){
+    printf("%02X", dados[i]);
+  }
+  printf("\n");
+}
+
 int main(){
   return 0;
 }
