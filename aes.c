@@ -176,6 +176,21 @@ uint8_t gf_inverso(uint8_t byte){
   return 0x00;
 }
 
+// gera s-box e s-box inversa 
+// p cada byte possivel, o valor da s-box é calculado em 2 passo 
+// 1. calcula o inverso multiplicativo em gf 2 a 8 
+// 2 aplica transformação afim: cada bit do result é uma combinação xor de alguns bits do inverso
+// de acordo com o padrão aes.
+// isso é feito com rotações do byte e sucessões de XOR, finalizando com o xor da const x63
+//
+// a s-box inversa é preenchida simultaneamente, se s-box[x] = y, ent sbox_inversa[y] = x 
+
+
+
+static uint8_t rotacao_circular(uint8_t byte, int n){
+
+}
+
 
 
 int main(){
