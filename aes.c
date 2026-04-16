@@ -262,6 +262,52 @@ void expansao_chave(const uint8_t *chave, uint8_t subchaves[TAM_MAX_CHAVE_EXPAND
   }
 }
 
+// cifragem -. cifra um bloco de 16 bytes
+// 1. copia texto claro para o estado
+// 2. add round key incial (subkey 0)
+// 3. nr-1 rodas completas.
+// 4 iltima rodada sem mixcolumns.
+// 5. copia o state p texto cifrado.
+
+void cifragem(const uint8_t entrada_original[TAMANHO_BYTES_ENTRADA],
+              const uint8_t subkeys[TAM_MAX_CHAVE_EXPANDIDA],
+              uint8_t cifra[TAMANHO_BYTES_ENTRADA],
+              int nk){
+
+  int nr = NR(nk);
+  state_t estado;
+
+  // copia o bloco de entrada para a matriz de estado (por coluna)
+  for (int col = 0; col < 4; col++){
+    for (int linha =0; linha < 4; linha ++){
+      estado[linha][col] = entrada_original[col * 4 + linha];
+    }
+  }
+
+  // addroundkey inicial 
+  add_chave_rodada(estado, subkeys);
+
+  //rodas PRINCIPAIS
+  for (int rodada = 1; rodada <= nr; rodada++){
+    substituir_bytes(estado);
+    embaralhar_linhas(estado);
+
+    // n aplica mixcolumns na ultima;.
+    if (rodada < nr){
+      misturar_colunas(estado);
+    }
+
+    // subkey da roddada atual começa c rodada*16.
+    add_chave_rodada(estado, subkeys + rodada * 16);
+  }
+
+  // copia estado p saida.
+  for (int col = 0; col < 4; col++){
+    for (int linha = 0; linha < 4; linha++){
+      cifra[col * 4 + linha] = estado[linha][col];
+    }
+  }
+}
 
 
 
