@@ -130,6 +130,32 @@ uint8_t xtime(uint8_t valor){
   return resultado;
 }
 
+// multiplicacao gf: x dois bytes em gf(2⁸)
+//
+// fazemos multiplicação por partes, inspecionamos o byte_y bit a bit, para cada bit q for 1 
+// acumula-se a potência correspondente de byte_x via xtime 
+
+uint8_t multiplicacao_gf(uint8_t byte_x, uint8_t byte_y){
+  uint8_t resultado = 0;
+
+  for (int i = 0; i < 8; i++){
+    // se o bit menos significativo do byte_y for 1, o termo do byte_x junta no resultado
+    if (byte_y & 0x01){
+      resultado ^= byte_x;
+    }
+    // avança byte_x uma potência de x 
+    byte_x = xtime(byte_x);
+
+    // consome o bit menos significativo de byte_y
+    byte_y >>= 1;
+  }
+
+  return resultado;
+}
+
+
+
+
 int main(){
   return 0;
 }
