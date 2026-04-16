@@ -355,7 +355,65 @@ void cifragem(const uint8_t entrada_original[TAMANHO_BYTES_ENTRADA],
   }
 }
 
+// decifragem
+// ops inversas as da cifragem (ordem reversa)
 
+void sub_bytes_inversos(state_t estado){
+  // aplica a sbox inversa em cada byte do estado
+  // inverso de substituir_bytes
+  for (int linha = 0; linha < 4; linha++){
+    for (int col = 0; col < 4; col++){
+      estado[linha][col] = sbox_inversa[estado[linha][col]];
+    }
+  }
+}
+
+void embaralhar_linhas_inverso(state_t estado){
+  for (int linha = 1; linha < 4; linha++){
+    uint8_t temp[4];
+
+    // copy linha p buffer
+    for (int col = 0; col < 4; col++){
+      temp[col] = estado[linha][col];
+    }
+
+    // desloca p direita 
+    for (int col = 0; col < 4; col++){
+      estado[linha][col] = temp[(col - linha + 4) % 4];
+    }
+  }
+}
+
+void misturar_colunas_inverso(state_t estado){
+  // usa matriz inversa fixa
+  for (int col = 0; col < 4; col++){
+    uint8_t a = estado[0][col];
+    uint8_t b = estado[1][col];
+    uint8_t c = estado[2][col];
+    uint8_t d = estado[3][col];
+
+    // aplica-se matriz inversa
+    estado[0][col] = multiplicacao_gf(0x0E, a) 
+                   ^ multiplicacao_gf(0x0B, b)
+                   ^ multiplicacao_gf(0x0D, c)
+                   ^ multiplicacao_gf(0x09, d);
+    
+    estado[1][col] = multiplicacao_gf(0x09, a)
+                   ^ multiplicacao_gf(0x0E, b)
+                   ^ multiplicacao_gf(0x0B, c)
+                   ^ multiplicacao_gf(0x0D, d);
+    
+    estado[2][col] = multiplicacao_gf(0x0D, a)
+                   ^ multiplicacao_gf(0x09, b)
+                   ^ multiplicacao_gf(0x0E, c)
+                   ^ multiplicacao_gf(0x0B, d);
+    
+    estado[3][col] = multiplicacao_gf(0x0B, a)
+                   ^ multiplicacao_gf(0x0D, b)
+                   ^ multiplicacao_gf(0x09, c)
+                   ^ multiplicacao_gf(0x0E, d);
+  }
+}
 
 int main(){
   return 0;
