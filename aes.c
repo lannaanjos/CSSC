@@ -214,6 +214,55 @@ void gerar_sbox(void){
   }
 }
 
+// expansão de chave deriva (Nr+1) subchaves a partir da chave original
+
+// rotaciona os 4 bytes de uma apalvra p esq 
+static uint32_t rotaciona_palavra(uint32_t palavra){
+  return (palavra << 8) | (palavra >> 24);
+}
+
+// aplica sbox nos 4 bytes individuais
+static uint32_t subpalavra(uint32_t palavra){
+  return ((uint32_t)sbox[(palavra >> 24) & 0xFF] << 24) |
+           ((uint32_t)sbox[(palavra >> 16) & 0xFF] << 16) |
+           ((uint32_t)sbox[(palavra >>  8) & 0xFF] <<  8) |
+           ((uint32_t)sbox[(palavra      ) & 0xFF]      );
+}
+
+void expansao_chave(const uint8_t *chave, uint8_t subchaves[TAM_MAX_CHAVE_EXPANDIDA], int nk){
+  int nr = NR(nk); // nº rodadas
+  int total_palavras = (nr + 1) * 4; // total de palavras de 4 bytes
+  
+  // buffer subkeys = array de palavras
+  uint32_t *w = (uint32_t *)subchaves;
+
+  //copia chave original como as primeiras nk palavras
+  for (int i = 0; i < nk; i++) {
+    w[i] = ((uint32_t)chave[4*i    ] << 24) |
+    ((uint32_t)chave[4*i + 1] << 16) |
+    ((uint32_t)chave[4*i + 2] <<  8) |
+    ((uint32_t)chave[4*i + 3]      );
+  }
+  
+  // derivas palavras restantes 
+  for (int i = nk; i < total_palavras; i++){
+    uint32_t temp = w[i-1];
+
+    if (i % nk == 0){
+      // a cada nk rotaciona e substitui pela sbox
+      // aplica const da rodada rcon
+      temp = subpalavra(rotaciona_palavra(temp)) ^ ((uint32_t)RCON[i/nk-1] << 24);
+    } else if (nk == NK_256 && i % nk == 4){
+      // substituiçao extra na metade 
+      temp = subpalavra(temp); 
+    }
+
+    // cada palavra nova é a xor da Nk posiçoes atrás com temp
+    w[i] = w[i-nk] ^ temp;
+  }
+}
+
+
 
 
 int main(){
