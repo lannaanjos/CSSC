@@ -95,6 +95,24 @@ void decifragem(const uint8_t cifra[TAMANHO_BYTES_ENTRADA],
                     uint8_t entrada_original[TAMANHO_BYTES_ENTRADA],
                     int nk);
 
+// IMPLEMENTANDO
+//   o xtime multiplica um byte por dois dentro do gf(2⁸)
+//   step by step
+//   1. verifica-se se o bit 7 é 1 (antes do shift pq dps ele se perde)
+//   2. desloca-se todos os bits p posição esquerda (multiplicar polinomio por x)
+//   o resultado pode ter nove bits mas o uint8_t descarta o extra 
+//   3. se o bit 7 era 1, o polinomio ultrapasssou o grau 8 e tem q ser reduzido
+//   por isso, fazemor XOR com 0x1B, o poli redutor do aes sem o bit x⁸
+//
+//  EX: 0x57 (0b01010111):
+//  bit 7 = 0, ent n precisa reduzir 
+//  shift = 0b10101110 = 0xAE (resultado)
+//
+//  EX: 0xAE (0b10101110):
+//  bit 7 = 1, ent precisa reduzir 
+//  shift 0b010111100 = 0x5C
+//  0x5C XOR 0x1B = 0x47 (resultado)
+//
 
 
 
