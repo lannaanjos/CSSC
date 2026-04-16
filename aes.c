@@ -437,7 +437,7 @@ void decifragem(const uint8_t cifra[TAMANHO_BYTES_ENTRADA],
     misturar_colunas_inverso(estado);
 
     // subkey rodada atual
-    add_chave_rodada(estado, subkeys + rodada 8 16);
+    add_chave_rodada(estado, subkeys + rodada * 16);
   }
 
   // ultima rodada
@@ -464,6 +464,11 @@ void imprimir_hex(const char* rotulo, const uint8_t* dados, size_t tamanho){
 }
 
 int main(){
+  gerar_sbox();
+
+  printf("//\\//\\//\\TESTE AES 128 //\\//\\//\\");
+
+
   return 0;
 }
 
