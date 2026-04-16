@@ -268,6 +268,52 @@ void expansao_chave(const uint8_t *chave, uint8_t subchaves[TAM_MAX_CHAVE_EXPAND
 // 3. nr-1 rodas completas.
 // 4 iltima rodada sem mixcolumns.
 // 5. copia o state p texto cifrado.
+//
+void add_chave_rodada(state_t estado, const uint8_t *subkey_round){
+  for (int col = 0; col < 4; col++){
+    for (int linha = 0; linha < 4; linha++){
+      estado[linha][col] ^= subkey_round[col * 4 + linha];
+    }
+  }
+}
+
+void substituir_bytes(state_t estado){
+  for (int linha = 0; linha < 4; linha++){
+    for(int col = 0; col < 4; col++){
+      estado[linha][col] = sbox[estado[linha][col]];
+    }
+  }
+}
+
+void embaralhar_linhas(state_t estado){
+  for (int linha = 1; linha < 4; linha++){
+    // copiamos a linha atual p um buffer temp
+    uint8_t temp[4];
+
+    for (int col = 0; col < 4; col++){
+      temp[col] = estado[linha][col];
+    }
+
+    for (int col = 0; col < 4; col++){
+      estado[linha][col] = temp[(col+linha) % 4];
+    }
+  }
+}
+
+void misturar_colunas(state_t estado){
+  for (int col = 0; col < 4; col++){
+    uint8_t a = estado[0][col];
+    uint8_t b = estado[1][col];
+    uint8_t c = estado[2][col];
+    uint8_t d = estado[3][col];
+
+    // aplicase matriz fixa aes com xtime.
+    estado[0][col] = xtime(a) ^ xtime(b)^b ^ c ^ d;
+    estado[1][col] = a ^ xtime(b) ^ xtime(c)^c ^ d;
+    estado[2][col] = a ^ b ^ xtime(c) ^ xtime(d)^d;
+    estado[3][col] = xtime(a)^a ^ b ^ c ^ xtime(d); 
+  }
+}
 
 void cifragem(const uint8_t entrada_original[TAMANHO_BYTES_ENTRADA],
               const uint8_t subkeys[TAM_MAX_CHAVE_EXPANDIDA],
