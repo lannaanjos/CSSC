@@ -188,7 +188,30 @@ uint8_t gf_inverso(uint8_t byte){
 
 
 static uint8_t rotacao_circular(uint8_t byte, int n){
+  return (uint8_t)((byte << n) | (byte >> (8-n)));
+}
 
+void gerar_sbox(void){
+  for (uint16_t i = 0; i <= 0xFF; i++){
+    uint8_t byte = (uint8_t)i;
+
+    // inverso multiplicativo 
+    uint8_t inverso = gf_inverso(byte);
+
+    // transf afim
+    uint8_t tranformado = inverso
+      ^ rotacao_circular(inverso, 1)
+      ^ rotacao_circular(inverso, 2)
+      ^ rotacao_circular(inverso, 3)
+      ^ rotacao_circular(inverso, 4);
+    
+    // xor final 
+    tranformado ^= GF_TRANSFORMACAO_AFIM;
+    
+    // preenche sbox e sbox inversa simultaneamente
+    sbox[byte] = tranformado;
+    sbox_inversa[tranformado] = byte;
+  }
 }
 
 
