@@ -415,6 +415,45 @@ void misturar_colunas_inverso(state_t estado){
   }
 }
 
+void decifragem(const uint8_t cifra[TAMANHO_BYTES_ENTRADA],
+                const uint8_t subkeys[TAM_MAX_CHAVE_EXPANDIDA],
+                uint8_t entrada_original[TAMANHO_BYTES_ENTRADA],
+                int nk){
+
+  int nr = NR(nk);
+  state_t estado;
+
+  for(int col = 0; col < 4; col++){
+    for (int linha = 0; linha < 4; linha++){
+      estado[linha][col] = cifra[col * 4 + linha];
+    }
+  }
+
+  add_chave_rodada(estado, subkeys + nr * 16);
+
+  for (int rodada = nr-1; rodada >= 1; rodada--){
+    sub_bytes_inversos(estado);
+    embaralhar_linhas_inverso(estado);
+    misturar_colunas_inverso(estado);
+
+    // subkey rodada atual
+    add_chave_rodada(estado, subkeys + rodada 8 16);
+  }
+
+  // ultima rodada
+  sub_bytes_inversos(estado);
+  embaralhar_linhas_inverso(estado);
+
+  add_chave_rodada(estado, subkeys);
+
+  // copia estado p saida
+  for (int col = 0; col < 4; col++){
+    for (int linha = 0; linha < 4; linha++){
+      entrada_original[col * 4 + linha] = estado[linha][col];
+    }
+  }
+}
+
 int main(){
   return 0;
 }
