@@ -233,15 +233,15 @@ void expansao_chave(const uint8_t *chave, uint8_t subchaves[TAM_MAX_CHAVE_EXPAND
   int nr = NR(nk); // nº rodadas
   int total_palavras = (nr + 1) * 4; // total de palavras de 4 bytes
   
-  // buffer subkeys = array de palavras
-  uint32_t *w = (uint32_t *)subchaves;
+  // temp array p palavras
+  uint32_t w[60];
 
-  //copia chave original como as primeiras nk palavras
+  //copia chave original como as primeiras nk palavras (big-endian -> uint32_t nativo)
   for (int i = 0; i < nk; i++) {
-    w[i] = ((uint32_t)chave[4*i    ] << 24) |
-    ((uint32_t)chave[4*i + 1] << 16) |
-    ((uint32_t)chave[4*i + 2] <<  8) |
-    ((uint32_t)chave[4*i + 3]      );
+    w[i] = ((uint32_t)chave[4*i]     << 24) |
+           ((uint32_t)chave[4*i + 1] << 16) |
+           ((uint32_t)chave[4*i + 2] <<  8) |
+           ((uint32_t)chave[4*i + 3]);
   }
   
   // derivas palavras restantes 
@@ -260,6 +260,14 @@ void expansao_chave(const uint8_t *chave, uint8_t subchaves[TAM_MAX_CHAVE_EXPAND
     // cada palavra nova é a xor da Nk posiçoes atrás com temp
     w[i] = w[i-nk] ^ temp;
   }
+  
+  for (int i = 0; i < total_palavras; i++){
+    subchaves[4*i] =      (uint8_t)(w[i] >> 24);
+    subchaves[4*i + 1] =  (uint8_t)(w[i] >> 16);
+    subchaves[4*i + 2] =  (uint8_t)(w[i] >> 8);
+    subchaves[4*i + 3] =  (uint8_t)(w[i]);
+  }
+
 }
 
 // cifragem -. cifra um bloco de 16 bytes
