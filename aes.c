@@ -153,6 +153,28 @@ uint8_t multiplicacao_gf(uint8_t byte_x, uint8_t byte_y){
   return resultado;
 }
 
+// gf inverso: acha o inverso multiplicador em gf 2 a 8 
+//
+// o inverso do byte é o valor x tal que:
+// multiplicacao_gf(byte,x) == 1 
+// 
+// tem q testar todos os 255 candidatos
+// o byte 0x00 n tem inverso pela definição do corpo finito, por isso retorna 0 p ele
+//
+// processo é lento, mas como só se usa na geração da s-box vale mais a pena prezar pela
+// simplicidade do que pela performance
+
+uint8_t gf_inverso(uint8_t byte){
+  if (byte == 0x00) return 0x00;
+
+  for (uint16_t candidato = 0x01; candidato <= 0xFF; candidato++){
+    if (multiplicacao_gf(byte, (uint8_t)candidato) == 0x01){
+      return (uint8_t)candidato;
+    }
+  }
+  // a ideia é nunca chegar nesse return 
+  return 0x00;
+}
 
 
 
