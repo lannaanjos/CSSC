@@ -114,7 +114,25 @@ void decifragem(const uint8_t cifra[TAMANHO_BYTES_ENTRADA],
 //  0x5C XOR 0x1B = 0x47 (resultado)
 //
 
+uint8_t xtime(uint8_t valor){
+  // isola o bit c a mask x80
+  // se resultado != 0, bit 7 era 1 
+  uint8_t bit7_eh_um = (valor & 0x80);
 
+  // desloca tudo p esquerda
+  uint8_t resultado = (uint8_t)(valor << 1);
+
+  // se bit7 era 1, reduz 
+  if (bit7_eh_um) {
+    resultado ^= GF_POLINOMIO_IRREDUTIVEL;
+  }
+
+  return resultado;
+}
+
+int main(){
+  return 0;
+}
 
 
 
