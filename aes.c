@@ -466,7 +466,7 @@ void imprimir_hex(const char* rotulo, const uint8_t* dados, size_t tamanho){
 int main(){
   gerar_sbox();
 
-  printf("//\\//\\//\\ TESTE AES 128 //\\//\\//\\");
+  printf("//\\//\\//\\ TESTE AES 128 //\\//\\//\\ \n");
   
   // vetor de teste oficial do nist para AES-128
   // fonte: NIST AESAVS (aes validation suite)
@@ -488,6 +488,40 @@ int main(){
     0x69, 0xc4, 0xe0, 0xd8, 0x6a, 0x7b, 0x04, 0x30,
     0xd8, 0xcd, 0xb7, 0x80, 0x70, 0xb4, 0xc5, 0x5a
   };
+
+  // buffers processamento
+  uint8_t subkeys[TAM_MAX_CHAVE_EXPANDIDA];
+  uint8_t cifra[16];
+  uint8_t decifra[16];
+
+  //// aes steps
+  expansao_chave(chave_128, subkeys, NK_128);
+
+  cifragem(texto_entry, subkeys, cifra, NK_128);
+
+  // resultados
+  imprimir_hex("Chave:            ", chave_128, 16);
+  imprimir_hex("Entrada:          ", texto_entry, 16);
+  imprimir_hex("Cifra esperada:   ", cifra_esperada, 16);
+  imprimir_hex("Cifra calculada:  ", cifra, 16);
+
+  int cifra_correta = memcmp(cifra, cifra_esperada, 16) == 0;
+  if(cifra_correta){
+    printf("\nCIFRAGEM CORRETA!\n\n");
+  } else {
+    printf("\nCRIGRAGEM DEU ERRADO.\n\n");
+  }
+
+  // decifragem
+  decifragem(cifra, subkeys, decifra, NK_128);
+  imprimir_hex("Decifrado:        ", decifra, 16);
+
+  int decifragem_correta = memcmp(decifra, texto_entry, 16) == 0;
+  if (decifragem_correta){
+    printf("\nDECIFRAGEM CORRETA\n\n");
+  } else {
+    printf("\nDECIFRAGEM DEU ERRADO.\n");
+  }
 
   return 0;
 }
