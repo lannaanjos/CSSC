@@ -142,5 +142,15 @@ static void transformacao_sha256(SHA256_CONTEXTO *ctx, const uint32_t bloco[64])
     a = T1 + T2;
   }
 
+  // passo 5: atualizar estado do contexto.
+
+  ctx->state[0] += a;
+  ctx->state[1] += b;
+  ctx->state[2] += c;
+  ctx->state[3] += d;
+  ctx->state[4] += e;
+  ctx->state[5] += f;
+  ctx->state[6] += g;
+  ctx->state[7] += h;
 }
 
