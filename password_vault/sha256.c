@@ -154,3 +154,19 @@ static void transformacao_sha256(SHA256_CONTEXTO *ctx, const uint32_t bloco[64])
   ctx->state[7] += h;
 }
 
+// Inicialização do SHA256 
+// deve ser chamada antes de começar a processar uma msg.
+
+void sha256_init(SHA256_CONTEXTO *ctx){
+  //copia valores inciais p estado
+  for (int i = 0; i < 8; i++){
+    ctx->estado[i] = H_iniciais[i];
+  }
+
+  // zera contador de bits
+  ctx->contador[0] = 0;
+  ctx->contador[1] = 0;
+
+  // zera buffer (p segurança)
+  memset(ctx->buffer, 0, 64);
+}
