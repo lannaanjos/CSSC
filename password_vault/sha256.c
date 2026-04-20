@@ -74,3 +74,17 @@ static uint32_t sigma0(uint32_t x){
 static uint32_t sigma1(uint32_t x){
   return rotacao_direita(x, 17) ^ rotacao_direita(x, 19) ^ (x >> 10);
 }
+
+// STRUCT DE CONTEXTO
+// mantém o estado do processamento entre camadas.
+
+typedef struct {
+  uint32_t estado[8]; // os 8 registradores de 32 bits (hash em progresso)
+  uint32_t contador[2]; // contador de bits processados (dois uint32_t p suportar mensagens de até 2^64 bits)
+  uint32_t buffer[64]; // buffer p blocos incompletos
+} SHA256_CONTEXTO;
+
+
+
+
+
