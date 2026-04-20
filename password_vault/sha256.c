@@ -41,4 +41,36 @@ static uint32_t rotacao_esquerda(uint32_t x, int n){
   return (x << n) | (x >> (32 - n));
 }
 
+// FUNÇÕES LÓGICAS
+// usdas em cada rodada p misturar os bits
+//
+// Choose: escolhe bits de x ou y baseado em e. Se x for 1, escolhe y. Se x for 0, escolhe z.
+// Majority: maioria entre x, y, z. Retorna 1 se pelo menos dois dos três bits forem 1.
+// Sigma0: rotações + shift usadas na expansão/compressão da mensagem. Mistura o bit com seus vizinhos rotacionados.
+// Sigma1: rotações + shift usadas na atualização do estado. Similar a Sigma0 mas com rotações diferentes.
+// sigma0: rotações + shift (expansão).
+// sigma1: rotações + shift (expansão).
 
+static uint32_t Choose(uint32_t x, uint32_t y, uint32_t z){
+  return (x & y) ^ (~x & z);
+}
+
+static uint32_t Majority(uint32_t a, uint32_t b, uint32_t c){
+  return (a & b) ^ (a & c) ^ (b & c);
+}
+
+static uint32_t Sigma0(uint32_t x){
+  return rotacao_direita(x, 2) ^ rotacao_direita(x, 13) ^ rotacao_direita(x, 22);
+}
+
+static uint32_t Sigma1(uint32_t x){
+  return rotacao_direita(x, 6) ^ rotacao_direita(x, 11) ^ rotacao_direita(x, 25);
+}
+
+static uint32_t sigma0(uint32_t x){
+  return rotacao_direita(x, 7) ^ rotacao_direita(x, 18) ^ (x >> 3);
+}
+
+static uint32_t sigma1(uint32_t x){
+  return rotacao_direita(x, 17) ^ rotacao_direita(x, 19) ^ (x >> 10);
+}
