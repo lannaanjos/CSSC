@@ -28,3 +28,17 @@ static const uint32_t P[64] = {
     0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
 };
 
+// FUNCS AUXILIARES
+
+static uint32_t rotacao_direita(uint32_t x, int n){
+  return (x >> n) | (x << (32 - n));
+  // "x >> n" pega os bits q vão cair fora 
+  // "x << (32-n)" pega os bits q caíram e coloca à esquerda
+  // o OR | junta
+}
+
+static uint32_t rotacao_esquerda(uint32_t x, int n){
+  return (x << n) | (x >> (32 - n));
+}
+
+
