@@ -6,6 +6,7 @@
 
 // Ela funciona em rodadas que se repetem conforme o tamanho da chave da entrada.
 
+#include "aes.h"
 #include <stddef.h>
 #include <stdint.h> // -> uinbt8_t, uint32_t
 #include <string.h> // -> memcpy, memset
