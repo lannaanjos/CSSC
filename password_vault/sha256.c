@@ -1,10 +1,10 @@
-// SHA-256 -> função hash q produz 32 bytes a partir de uma mensgaem de qlq tamanho
+// /\/\/\ SHA-256 -> função hash q produz 32 bytes a partir de uma mensgaem de qlq tamanho
 // 
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
 
-// CONSTANTES
+// /\ CONSTANTES
 // primeiras 32 frações binárias das raízes cúbicas do primeiros 64 nros primos.
 
 static const uint32_t P[64] = {
@@ -18,7 +18,7 @@ static const uint32_t P[64] = {
     0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
 };
 
-// VALORES INICIAIS DO HASH (H0 a H7)//
+// /\ VALORES INICIAIS DO HASH (H0 a H7)//
 // primeiras 32 frações binárias das raízes quadradas dos primeiros 8 números primos
 //
 // eles iniciam o estado interno antes de processar qlq bloco da mensagem.
@@ -28,7 +28,7 @@ static const uint32_t P[64] = {
     0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
 };
 
-// FUNCS AUXILIARES
+// /\ FUNCS AUXILIARES
 
 static uint32_t rotacao_direita(uint32_t x, int n){
   return (x >> n) | (x << (32 - n));
@@ -41,7 +41,7 @@ static uint32_t rotacao_esquerda(uint32_t x, int n){
   return (x << n) | (x >> (32 - n));
 }
 
-// FUNÇÕES LÓGICAS
+// /\ FUNÇÕES LÓGICAS
 // usdas em cada rodada p misturar os bits
 //
 // Choose: escolhe bits de x ou y baseado em e. Se x for 1, escolhe y. Se x for 0, escolhe z.
@@ -75,7 +75,7 @@ static uint32_t sigma1(uint32_t x){
   return rotacao_direita(x, 17) ^ rotacao_direita(x, 19) ^ (x >> 10);
 }
 
-// STRUCT DE CONTEXTO
+// /\ STRUCT DE CONTEXTO
 // mantém o estado do processamento entre camadas.
 
 typedef struct {
@@ -84,7 +84,7 @@ typedef struct {
   uint32_t buffer[64]; // buffer p blocos incompletos
 } SHA256_CONTEXTO;
 
-// TRANSFORMAÇÃO SHA-256
+// /\ TRANSFORMAÇÃO SHA-256
 // processa um único subbloco de 512 bits atualizando o estado.
 // recebe o contexto atual e um bloco de dados e aplica 64 rodadas de operações de mistura.
 
@@ -154,7 +154,7 @@ static void transformacao_sha256(SHA256_CONTEXTO *ctx, const uint32_t bloco[64])
   ctx->state[7] += h;
 }
 
-// Inicialização do SHA256 
+// /\ Inicialização do SHA256 
 // deve ser chamada antes de começar a processar uma msg.
 
 void sha256_init(SHA256_CONTEXTO *ctx){
@@ -171,7 +171,7 @@ void sha256_init(SHA256_CONTEXTO *ctx){
   memset(ctx->buffer, 0, 64);
 }
 
-// Atualização SHA256
+// /\ Atualização SHA256
 // processa dados em chunks e pode ser chamada várias vezes com pedaços da msg.
 
 void sha256_atualiza(SHA256_CONTEXTO *ctx, const uint32_t *dados, size_t tam){
@@ -223,3 +223,12 @@ void sha256_atualiza(SHA256_CONTEXTO *ctx, const uint32_t *dados, size_t tam){
     memcpy(ctx->buffer + (64 - espaco_buffer) + (i - espaco_buffer), dados + i, tam - i);
   }
 }
+
+// /\ SHA-256 FINAL 
+// finaliza hash, aplica o padding, e gera resultado final.
+/*
+  Padding:
+  1. adiciona um bit '1'
+  2. adiciona bits '0' até o comprimento ser multiplo de 512.
+  3. adiciona o comprimento original em bits (64 bits, big endian)
+*/ 
