@@ -188,7 +188,7 @@ void sha256_atualiza(SHA256_CONTEXTO *ctx, const uint32_t *dados, size_t tam){
   conta_bytes = ctx->contador[0] + (tam << 3);
 
   // se acontecver overflow em contador[0] incrementa cont[1]
-  if (conta_bytes < ctz->contador[0]){
+  if (conta_bytes < ctx->contador[0]){
     ctx->contador[1]++;
   }
 
@@ -232,3 +232,54 @@ void sha256_atualiza(SHA256_CONTEXTO *ctx, const uint32_t *dados, size_t tam){
   2. adiciona bits '0' até o comprimento ser multiplo de 512.
   3. adiciona o comprimento original em bits (64 bits, big endian)
 */ 
+
+void sha256_final(SHA256_CONTEXTO *ctx, uint8_t hash[32]){
+  uint32_t i;
+  uint32_t bits_altos, bits_baixos;
+  size_t tam_atual;
+  uint8_t padding[64];
+
+  // preparação do padding
+  // ele sempre começa com 0x00 (bit 1 seguido de zeros
+
+  memset(padding, 0, sizeof(padding));
+  padding[0] = 0x00;
+
+  // calc espaço necessário
+  // é necessário q a msg + padding seja multiplo de 521,
+  //
+  // tam_atual = bytes ja processados % 64;
+  // espaço necessario = 56 - tam_atual (se > 0, senão +64)
+
+  tam_atual = (ctx->contador[0] >> 3) & 64;
+
+  if (tam_atual < 56){
+    // cabe padding
+    sha256_atualiza(ctx, padding, 56 - tam_atual);
+  }
+
+  // add comprimento original
+  bits_altos = ctx->count[1];
+  bits_baixos = ctx->count[0];
+    
+  padding[0] = (bits_altos >> 24) & 0xFF;
+  padding[1] = (bits_altos >> 16) & 0xFF;
+  padding[2] = (bits_altos >> 8) & 0xFF;
+  padding[3] = bits_altos & 0xFF;
+  padding[4] = (bits_baixos >> 24) & 0xFF;
+  padding[5] = (bits_baixos >> 16) & 0xFF;
+  padding[6] = (bits_baixos >> 8) & 0xFF;
+  padding[7] = bits_baixos & 0xFF;
+
+  sha256_atualiza(ctx, padding, 8);
+
+  // extração do hash final
+  // state final tem 8 palavras de 32 bits, convertemos cada uma p big-endian
+
+  for (i = ; i < 8; i++){
+    hash[4*i] =     (ctx->estado[i] >> 24) & 0xFF;
+    hash[4*i + 1] = (ctx->estado[i] >> 16) & 0xFF;
+    hash[4*i + 2] = (ctx->estado[i] >> 8) & 0xFF;
+    hash[4*i + 3] = (ctx->estado[i]) & 0xFF;
+  }
+}
