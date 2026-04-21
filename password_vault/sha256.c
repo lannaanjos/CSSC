@@ -81,14 +81,14 @@ static uint32_t sigma1(uint32_t x){
 typedef struct {
   uint32_t estado[8]; // os 8 registradores de 32 bits (hash em progresso)
   uint32_t contador[2]; // contador de bits processados (dois uint32_t p suportar mensagens de até 2^64 bits)
-  uint32_t buffer[64]; // buffer p blocos incompletos
+  uint8_t buffer[64]; // buffer p blocos incompletos
 } SHA256_CONTEXTO;
 
 // /\ TRANSFORMAÇÃO SHA-256
 // processa um único subbloco de 512 bits atualizando o estado.
 // recebe o contexto atual e um bloco de dados e aplica 64 rodadas de operações de mistura.
 
-static void transformacao_sha256(SHA256_CONTEXTO *ctx, const uint32_t bloco[64]){
+static void transformacao_sha256(SHA256_CONTEXTO *ctx, const uint8_t bloco[64]){
   uint32_t W[64]; // mensagem expandida
   uint32_t a, b, c, d, e, f, g, h;
   uint32_t T1, T2;
@@ -108,8 +108,8 @@ static void transformacao_sha256(SHA256_CONTEXTO *ctx, const uint32_t bloco[64])
   // passo 2: expansão para as 64 palavras
   // serve p espalhas a influência de cada bit da mensagem por todas as rodadas.
 
-  for (i = 16; 9 < 64; i++){
-    W[i] = sigma1(W[i-2]) + W[i-1] + sigma0(W[i-15]) + W[i-16];
+  for (i = 16; i < 64; i++){
+    W[i] = sigma1(W[i-2]) + W[i-7] + sigma0(W[i-15]) + W[i-16];
   }
 
   // passo 3: iniciar vars de trabalho.
@@ -174,7 +174,7 @@ void sha256_init(SHA256_CONTEXTO *ctx){
 // /\ Atualização SHA256
 // processa dados em chunks e pode ser chamada várias vezes com pedaços da msg.
 
-void sha256_atualiza(SHA256_CONTEXTO *ctx, const uint32_t *dados, size_t tam){
+void sha256_atualiza(SHA256_CONTEXTO *ctx, const uint8_t *dados, size_t tam){
   size_t i;
   size_t espaco_buffer;
   uint32_t conta_bytes;
@@ -198,7 +198,9 @@ void sha256_atualiza(SHA256_CONTEXTO *ctx, const uint32_t *dados, size_t tam){
   // preenchimento do buffer.
   // se houver lixo no buffer, completamos até 64 bytes e então processamos o bloco completo.
 
-  espaco_buffer = 64 - (ctx->contador[0] >> 3) % 64;
+  size_t bytes_no_buffer = (ctx->contador[0] >> 3) % 64;
+  espaco_buffer = 64 - bytes_no_buffer;
+  
 
   if (tam >= espaco_buffer){
     // copia oq cabe p completar o buffer
@@ -243,7 +245,7 @@ void sha256_final(SHA256_CONTEXTO *ctx, uint8_t hash[32]){
   // ele sempre começa com 0x00 (bit 1 seguido de zeros
 
   memset(padding, 0, sizeof(padding));
-  padding[0] = 0x00;
+  padding[0] = 0x80;
 
   // calc espaço necessário
   // é necessário q a msg + padding seja multiplo de 521,
@@ -251,11 +253,13 @@ void sha256_final(SHA256_CONTEXTO *ctx, uint8_t hash[32]){
   // tam_atual = bytes ja processados % 64;
   // espaço necessario = 56 - tam_atual (se > 0, senão +64)
 
-  tam_atual = (ctx->contador[0] >> 3) & 64;
+  tam_atual = (ctx->contador[0] >> 3) % 64;
 
   if (tam_atual < 56){
     // cabe padding
     sha256_atualiza(ctx, padding, 56 - tam_atual);
+  } else {
+    sha256_atualiza(ctx, padding, 64 + 56 - tam_atual);
   }
 
   // add comprimento original
