@@ -174,7 +174,7 @@ void sha256_init(SHA256_CONTEXTO *ctx){
 // Atualização SHA256
 // processa dados em chunks e pode ser chamada várias vezes com pedaços da msg.
 
-void sha25_atualiza(SHA256_CONTEXTO *ctx, const uint32_t *dados, size_t tam){
+void sha256_atualiza(SHA256_CONTEXTO *ctx, const uint32_t *dados, size_t tam){
   size_t i;
   size_t espaco_buffer;
   uint32_t conta_bytes;
@@ -218,5 +218,8 @@ void sha25_atualiza(SHA256_CONTEXTO *ctx, const uint32_t *dados, size_t tam){
     i = 0;
   }
 
-
+  // copia resto dos dados p buffer (< q um bloco)
+  if (i < tam){
+    memcpy(ctx->buffer + (64 - espaco_buffer) + (i - espaco_buffer), dados + i, tam - i);
+  }
 }
