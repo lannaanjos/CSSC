@@ -170,3 +170,53 @@ void sha256_init(SHA256_CONTEXTO *ctx){
   // zera buffer (p segurança)
   memset(ctx->buffer, 0, 64);
 }
+
+// Atualização SHA256
+// processa dados em chunks e pode ser chamada várias vezes com pedaços da msg.
+
+void sha25_atualiza(SHA256_CONTEXTO *ctx, const uint32_t *dados, size_t tam){
+  size_t i;
+  size_t espaco_buffer;
+  uint32_t conta_bytes;
+
+  if (tam == 0) return;
+
+  // contador[0] guarda os bits menos sigs e contados[1] os mais significativos 
+  // multiplica tam por 8 p converter byets em bits
+  // usa-se uma var temp p evitar overflow.
+
+  conta_bytes = ctx->contador[0] + (tam << 3);
+
+  // se acontecver overflow em contador[0] incrementa cont[1]
+  if (conta_bytes < ctz->contador[0]){
+    ctx->contador[1]++;
+  }
+
+  ctx->contador[0] = conta_bytes;
+  ctx->contador[1] += (tam >> 29); // 2^32 bits = 536870912 bytes, ent shift 29 
+
+  // preenchimento do buffer.
+  // se houver lixo no buffer, completamos até 64 bytes e então processamos o bloco completo.
+
+  espaco_buffer = 64 - (ctx->contador[0] >> 3) % 64;
+
+  if (tam >= espaco_buffer){
+    // copia oq cabe p completar o buffer
+    memcpy(ctx->buffer + (64 - espaco_buffer), dados, espaco_buffer);
+    
+    // processa bloco completo
+    transformacao_sha256(ctx, ctx->buffer);
+
+    // processa blocos completos restantes.
+    for (i = espaco_buffer; i + 64 <= tam; i+=64){
+      transformacao_sha256(ctx, dados + i);
+    }
+
+    // reseta buffer
+    memset(ctx->buffer, 0, 64);
+  } else {
+    i = 0;
+  }
+
+
+}
