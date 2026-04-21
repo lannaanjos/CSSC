@@ -283,3 +283,13 @@ void sha256_final(SHA256_CONTEXTO *ctx, uint8_t hash[32]){
     hash[4*i + 3] = (ctx->estado[i]) & 0xFF;
   }
 }
+
+// /\ FUNC AUXILIAR 
+// func q faz init, update e final de uma vez.
+
+void sha256(const uint8_t *dados, size_t tam, uint8_t hash[32]){
+  SHA256_CONTEXTO ctx;
+  sha256_init(&ctx);
+  sha256_atualiza(&ctx, dados, tam);
+  sha256_final(&ctx, hash);
+}
