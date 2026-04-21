@@ -102,7 +102,7 @@ static void transformacao_sha256(SHA256_CONTEXTO *ctx, const uint32_t bloco[64])
     W[i] =  ((uint32_t)bloco[4*i] <<      24) |
             ((uint32_t)bloco[4*i + 1] <<  16) |
             ((uint32_t)bloco[4*i + 2] <<   8) |
-            ((uint32_t bloco[4*i + 3]));
+            ((uint32_t) bloco[4*i + 3]);
   }
 
   // passo 2: expansão para as 64 palavras
@@ -114,14 +114,14 @@ static void transformacao_sha256(SHA256_CONTEXTO *ctx, const uint32_t bloco[64])
 
   // passo 3: iniciar vars de trabalho.
 
-  a = ctx->state[0];
-  b = ctx->state[1];
-  c = ctx->state[2];
-  d = ctx->state[3];
-  e = ctx->state[4];
-  f = ctx->state[5];
-  g = ctx->state[6];
-  h = ctx->state[7];
+  a = ctx->estado[0];
+  b = ctx->estado[1];
+  c = ctx->estado[2];
+  d = ctx->estado[3];
+  e = ctx->estado[4];
+  f = ctx->estado[5];
+  g = ctx->estado[6];
+  h = ctx->estado[7];
 
   // passo 4: 64 rodadas de compressão
   // cada rodada usa uma constante P[i], uma palavra de mensagem expandida W[i] e as funções lógicas.
@@ -144,14 +144,14 @@ static void transformacao_sha256(SHA256_CONTEXTO *ctx, const uint32_t bloco[64])
 
   // passo 5: atualizar estado do contexto.
 
-  ctx->state[0] += a;
-  ctx->state[1] += b;
-  ctx->state[2] += c;
-  ctx->state[3] += d;
-  ctx->state[4] += e;
-  ctx->state[5] += f;
-  ctx->state[6] += g;
-  ctx->state[7] += h;
+  ctx->estado[0] += a;
+  ctx->estado[1] += b;
+  ctx->estado[2] += c;
+  ctx->estado[3] += d;
+  ctx->estado[4] += e;
+  ctx->estado[5] += f;
+  ctx->estado[6] += g;
+  ctx->estado[7] += h;
 }
 
 // /\ Inicialização do SHA256 
@@ -259,8 +259,8 @@ void sha256_final(SHA256_CONTEXTO *ctx, uint8_t hash[32]){
   }
 
   // add comprimento original
-  bits_altos = ctx->count[1];
-  bits_baixos = ctx->count[0];
+  bits_altos = ctx->contador[1];
+  bits_baixos = ctx->contador[0];
     
   padding[0] = (bits_altos >> 24) & 0xFF;
   padding[1] = (bits_altos >> 16) & 0xFF;
@@ -276,7 +276,7 @@ void sha256_final(SHA256_CONTEXTO *ctx, uint8_t hash[32]){
   // extração do hash final
   // state final tem 8 palavras de 32 bits, convertemos cada uma p big-endian
 
-  for (i = ; i < 8; i++){
+  for (i = 0; i < 8; i++){
     hash[4*i] =     (ctx->estado[i] >> 24) & 0xFF;
     hash[4*i + 1] = (ctx->estado[i] >> 16) & 0xFF;
     hash[4*i + 2] = (ctx->estado[i] >> 8) & 0xFF;
