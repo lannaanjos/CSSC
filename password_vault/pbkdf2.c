@@ -5,6 +5,7 @@
 // saída: chave de 32 bytes.
 //
 #include <stdio.h>
+#include <string.>
 #include "pbkdf2.h"
 #include "hmac.h"
 
@@ -33,7 +34,7 @@ void pbkdf2_hmac_sha256(const uint8_t *senha, size_t tam_senha,
     memcpy(T, U, 32);
 
     // u2 .. Ui iter, cada um xor acumula em T.
-    for (i = 0; i < iteracoes; i++){
+    for (i = 1; i < iteracoes; i++){
       hmac_sha256(senha, tam_senha, U, 32, U);
       for (int j = 0; j < 32; j++){
         T[j] ^= U[j];

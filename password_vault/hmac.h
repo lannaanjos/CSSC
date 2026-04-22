@@ -1,4 +1,4 @@
-#ifdef HMAC_H
+#ifndef HMAC_H
 #define HMAC_H
 
 #include <stdint.h>
