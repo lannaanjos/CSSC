@@ -91,6 +91,40 @@ int unpadding_pkcs7(uint8_t *dados, size_t *tam){
 
 }
 
+// /\ CBC 
+void cifra_cbc(const uint8_t *entry, size_t entry_size,
+               uint8_t *saida,
+               const uint8_t *iv,
+               const uint8_t *subkeys){
+
+  // conta blocos 16 bytes
+  size_t n_blocos = entry_size / BLOCO_ENTRADA_TAM;
+
+  // buffer p bloco atual do processamento
+  uint8_t bloco_a_cifrar[BLOCO_ENTRADA_TAM];
+
+  // buffer bloco anterior
+  uint8_t bloco_prev[BLOCO_ENTRADA_TAM];
+
+  // bloco anterior recebe iv 
+  memcpy(bloco_prev, iv, BLOCO_ENTRADA_TAM);
+
+  //processamento dos blocos
+  for (size_t i = 0; i < n_blocos; i++){ // i é cada um dos blocos
+    // copia bloco atual da entrada 
+    memcpy(bloco_a_cifrar, entry + i, * BLOCO_ENTRADA_TAM, BLOCO_ENTRADA_TAM);
+
+    // xor com bloco prev cifrado 
+    xor_bytes(bloco_a_cifrar, bloco_prev, BLOCO_ENTRADA_TAM);
+
+    // cifragem do resultado (aes)
+    cifrar_bloco(bloco_a_cifrar, bloco_prev, subkeys);
+
+    // salva no buffer output
+    memcpy(saida + i * BLOCO_ENTRADA_TAM, bloco_prev, BLOCO_ENTRADA_TAM);
+
+  }
+}
 
 int main(){
   return 0;
