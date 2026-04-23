@@ -150,7 +150,32 @@ void decifra_cbc(const uint8_t *entry, size_t entry_size,
   }  
 }
 
+void cifragem_arquivo(const char *entry_path){
+  FILE *entry = fopen(entry_path, "rb");
+  if (!entry){
+    perror("Impossível abrir aquivo.\n");
+    exit(1);
+  }
 
+  char saida_path[512];
+
+  snprintf(saida_path, sizeof(saida_path), "%s.cifrado", entry_path);
+
+  FILE *saida = fopen(saida_path, "wb"){
+    if (!saida){
+      perror("Imporssível abrir.\n");
+      fclose(entry);
+      exit(1);
+    }
+  }
+
+  uint8_t salt[SALT_TAMANHO];
+  uint8_t iv[IV_TAMANHO];
+
+  gera_random();
+
+
+}
 
 int main(){
   return 0;
