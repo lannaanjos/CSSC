@@ -12,13 +12,18 @@
 // protótipos
 void gerar_sbox(void);
 void expansao_chave(const uint8_t *chave, uint8_t subchaves[TAM_MAX_CHAVE_EXPANDIDA], int nk);
+
 void cifragem(const uint8_t entrada_original[TAMANHO_BYTES_ENTRADA],
               const uint8_t subkeys[TAM_MAX_CHAVE_EXPANDIDA],
               uint8_t cifra[TAMANHO_BYTES_ENTRADA],
               int nk);
+
 void decifragem(const uint8_t cifra[TAMANHO_BYTES_ENTRADA],
                 const uint8_t subkeys[TAM_MAX_CHAVE_EXPANDIDA],
                 uint8_t entrada_original[TAMANHO_BYTES_ENTRADA],
                 int nk);
+
+void cifrar_bloco(const uint8_t *entry, uint8_t *saida, const uint8_t *subkeys);
+void decifrar_bloco(const uint8_t *entry, uint8_t *saida, const uint8_t *subkeys);
 
 #endif
