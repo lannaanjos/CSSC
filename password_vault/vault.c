@@ -126,6 +126,32 @@ void cifra_cbc(const uint8_t *entry, size_t entry_size,
   }
 }
 
+void decifra_cbc(const uint8_t *entry, size_t entry_size,
+                 uint8_t *saida,
+                 const uint8_t *iv,
+                 const uint8_t *saida){
+
+  size_t n_blocos = entry_size / BLOCO_ENTRADA_TAM;
+
+  uint8_t bloco_decifrado[BLOCO_ENTRADA_TAM];
+  uint8_t bloco_prev[BLOCO_ENTRADA_TAM];
+
+  // init iv 
+  memcpy(bloco_prev, iv, BLOCO_ENTRADA_TAM);
+
+  for (size_t i = 0; i < n_blocos; i++){
+    decifar_bloco(entry + i * BLOCO_ENTRADA_TAM, bloco_decifrado, subkeys);
+    xor_bytes(bloco_decifrado, bloco_prev, BLOCO_ENTRADA_TAM);
+    // salv resultado
+    memcpy(saida + i * BLOCO_ENTRADA_TAM, bloco_decifrado, BLOCO_ENTRADA_TAM);
+
+    // upt bloco prev
+    memcpy(bloco_prev, entrada + i * BLOCO_ENTRADA_TAM, BLOCO_ENTRADA_TAM);
+  }  
+}
+
+
+
 int main(){
   return 0;
 }
