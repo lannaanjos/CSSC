@@ -23,7 +23,7 @@ void gera_random(uint8_t *buffer, size_t tam){
     exit 1;
   }
 
-  ssizte_t bytes_lidos = read(fd, buffer tam);
+  ssize_t bytes_lidos = read(fd, buffer tam);
 
   if (bytes_lidos != (ssizte_t)tam){
     // n leu a qnt pedida
@@ -112,7 +112,7 @@ void cifra_cbc(const uint8_t *entry, size_t entry_size,
   //processamento dos blocos
   for (size_t i = 0; i < n_blocos; i++){ // i é cada um dos blocos
     // copia bloco atual da entrada 
-    memcpy(bloco_a_cifrar, entry + i, * BLOCO_ENTRADA_TAM, BLOCO_ENTRADA_TAM);
+    memcpy(bloco_a_cifrar, entry + i * BLOCO_ENTRADA_TAM, BLOCO_ENTRADA_TAM);
 
     // xor com bloco prev cifrado 
     xor_bytes(bloco_a_cifrar, bloco_prev, BLOCO_ENTRADA_TAM);
@@ -129,7 +129,7 @@ void cifra_cbc(const uint8_t *entry, size_t entry_size,
 void decifra_cbc(const uint8_t *entry, size_t entry_size,
                  uint8_t *saida,
                  const uint8_t *iv,
-                 const uint8_t *saida){
+                 const uint8_t *subkeys){
 
   size_t n_blocos = entry_size / BLOCO_ENTRADA_TAM;
 
@@ -140,13 +140,13 @@ void decifra_cbc(const uint8_t *entry, size_t entry_size,
   memcpy(bloco_prev, iv, BLOCO_ENTRADA_TAM);
 
   for (size_t i = 0; i < n_blocos; i++){
-    decifar_bloco(entry + i * BLOCO_ENTRADA_TAM, bloco_decifrado, subkeys);
+    decifrar_bloco(entry + i * BLOCO_ENTRADA_TAM, bloco_decifrado, subkeys);
     xor_bytes(bloco_decifrado, bloco_prev, BLOCO_ENTRADA_TAM);
     // salv resultado
     memcpy(saida + i * BLOCO_ENTRADA_TAM, bloco_decifrado, BLOCO_ENTRADA_TAM);
 
     // upt bloco prev
-    memcpy(bloco_prev, entrada + i * BLOCO_ENTRADA_TAM, BLOCO_ENTRADA_TAM);
+    memcpy(bloco_prev, entry + i * BLOCO_ENTRADA_TAM, BLOCO_ENTRADA_TAM);
   }  
 }
 
@@ -161,7 +161,7 @@ void cifragem_arquivo(const char *entry_path){
 
   snprintf(saida_path, sizeof(saida_path), "%s.cifrado", entry_path);
 
-  FILE *saida = fopen(saida_path, "wb"){
+  FILE *saida = fopen(saida_path, "wb")
     if (!saida){
       perror("Imporssível abrir.\n");
       fclose(entry);
@@ -188,9 +188,10 @@ void cifragem_arquivo(const char *entry_path){
   // deriva chave c pbkdf2
   uint8_t chave_aes[CHAVE_TAMANHO];
   pbkdf2_hmac_sha256(
-    (uint8_t)user_senha,strlen(user_senha),
+    (uint8_t*)user_senha,strlen(user_senha),
     salt, SALT_TAMANHO,
-  chave_aes, CHAVE_TAMANHO
+    ITER_PBKDF2,
+    chave_aes, CHAVE_TAMANHO
     );
 
   // expandindo chave p subkeys aes 
