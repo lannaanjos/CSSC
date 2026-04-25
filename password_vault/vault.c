@@ -249,6 +249,104 @@ void cifragem_arquivo(const char *entry_path){
   printf("Arquivo %s cifrado com sucesso!", entry_path);
 }
 
+void decifragem_arquivo(const char *entry_path){
+  FILE *entry = fopen(entry_path, "rb");
+  if (!entry){
+    perror("Impossível abrir arquivo\n");
+    exit(1);
+  }
+
+  uint8_t salt_extract[SALT_TAMANHO];
+  uint8_t iv_extract[IV_TAMANHO];
+
+  // le salt
+  if (fread(salt_extract, 1, SALT_TAMANHO, entry) != SALT_TAMANHO){
+    fprintf(stderr, "Arquivo cifrado inválido\n(salt error)\n");
+    exit(1);
+  }
+
+  // le iv 
+  if(fread(iv_extract, 1, IV_TAMANHO, entry) != IV_TAMANHO){
+    fprintf(stderr, "Arquivo cifrado inválido\n(iv error)\n");
+    exit(1);
+  }
+
+  // le cyphertext
+  fseek(entry, 0, SEEK_END);
+  size_t tam_total = ftell(entry);
+  size_t tam_cifrado = tam_total - SALT_TAMANHO - IV_TAMANHO;
+
+  fseek(entry, SALT_TAMANHO + IV_TAMANHO, SEEK_SET);
+
+  uint8_t *buffer_txt_cifrado = malloc(tam_cifrado);
+  if (!buffer_txt_cifrado){
+    perror("Erro ao alocar memória\n");
+    exit(1);
+  }
+
+  // le ciphertetx 
+  fread(buffer_txt_cifrado, 1, tam_cifrado, entry);
+  fclose(entry);
+
+  // pede a senha
+  char try_senha[256];
+  printf("Insira a senha do arquivo: ");
+  if (!fgets(try_senha, sizeof(try_senha), stdin)) {
+    fprintf(stderr, "Erro ao ler senha\n");
+    exit(1);
+  }
+
+  try_senha[strcspn(try_senha, "\n")] = '\0';
+
+  // deriva msm chave
+  uint8_t chave_aes[CHAVE_TAMANHO];
+  pbkdf2_hmac_sha256(
+    (uint8_t*)try_senha, strlen(try_senha),
+    salt_extract, SALT_TAMANHO,
+    ITER_PBKDF2,
+    chave_aes, CHAVE_TAMANHO
+  );
+
+  // expande chave
+  uint8_t subkeys_aes[TAM_MAX_CHAVE_EXPANDIDA];
+  expansao_chave(chave_aes, subkeys_aes, NK_256);
+
+  // limpando
+  memset(chave_aes, 0, CHAVE_TAMANHO);
+  memset(try_senha, 0, sizeof(try_senha));
+
+  // decifra cbc
+  uint8_t *buffer_txt_decifrado = malloc(tam_cifrado);
+  if (!buffer_txt_decifrado){
+    perror("Erro ao alocar memória\n");
+    free(buffer_txt_cifrado);
+    exit(1);
+  }
+
+  decifra_cbc(buffer_txt_cifrado, tam_cifrado, buffer_txt_decifrado, iv_extract, subkeys_aes);
+
+  // tira padding
+  size_t tam_s_pad = tam_cifrado;
+  if (unpadding_pkcs7(buffer_txt_decifrado, &tam_s_pad) != 0){
+    fprintf(stderr, "Erro: padding inválido, senha incorreta ou arquivo corrompido\n");
+    free(buffer_txt_cifrado);
+    free(buffer_txt_decifrado);
+    exit(1);
+  }
+
+  // mostra oq foi decifrado
+  fwrite(buffer_txt_decifrado, 1, tam_s_pad, stdout);
+
+  // limpa limpa limpa lalalala
+  memset(buffer_txt_cifrado, 0, tam_cifrado);
+  memset(buffer_txt_decifrado, 0, tam_cifrado);
+  memset(subkeys_aes, 0, TAM_MAX_CHAVE_EXPANDIDA);
+
+  free(buffer_txt_decifrado);
+  free(buffer_txt_cifrado);
+
+}
+
 int main(){
   return 0;
 }
