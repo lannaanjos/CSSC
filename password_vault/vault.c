@@ -172,9 +172,81 @@ void cifragem_arquivo(const char *entry_path){
   uint8_t salt[SALT_TAMANHO];
   uint8_t iv[IV_TAMANHO];
 
-  gera_random();
+  gera_random(salt, SALT_TAMANHO);
+  gera_random(iv, IV_TAMANHO);
 
+  // pede senha
+  char user_senha[256];
+  printf("Insira a senha do arquivo: ");
+  if(!fgets(user_senha, sizeof(user_senha), stdin)){
+    fprintf(stderr, "Não foi possível ler a senha");
+    exit(1);
+  }
 
+  user_senha[strcspn(user_senha, "\n")] = '\0';
+
+  // deriva chave c pbkdf2
+  uint8_t chave_aes[CHAVE_TAMANHO];
+  pbkdf2_hmac_sha256(
+    (uint8_t)user_senha,strlen(user_senha),
+    salt, SALT_TAMANHO,
+  chave_aes, CHAVE_TAMANHO
+    );
+
+  // expandindo chave p subkeys aes 
+  uint8_t subkeys_aes[TAM_MAX_CHAVE_EXPANDIDA];
+  expansao_chave(chave_aes, subkeys_aes, NK_256);
+
+  // limpando buffer
+  memset(chave_aes, 0, CHAVE_TAMANHO);
+  memset(user_senha, 0, sizeof(user_senha));
+
+  // add salt e iv no arquivo de saida
+  fwrite(salt, 1, SALT_TAMANHO, saida);
+  fwrite(iv, 1, IV_TAMANHO, saida);
+
+  // ler original p memoria.
+  fseek(entry, 0, SEEK_END);
+  size_t tam_original = ftell(entry);
+  fseek(entry, 0, SEEK_SET);
+
+  uint8_t *buffer_plain_text = malloc(tam_original + BLOCO_ENTRADA_TAM);
+  if (!buffer_plain_text){
+    perror("Erro ao alocar memória");
+    exit(1);
+  }
+
+  fread(buffer_plain_text, 1, tam_original, entry);
+
+  // add padding
+  size_t tam_c_padding;
+  padding_pkcs7(buffer_plain_text, tam_original, &tam_c_padding);
+
+  // cifrando em cbc 
+  uint8_t *buffer_txt_cifrado = malloc(tam_c_padding);
+  if (!buffer_txt_cifrado){
+    perror("Erro ao alocar memória");
+    free(buffer_plain_text);
+    exit(1);
+  }
+
+  cifra_cbc(buffer_plain_text, tam_c_padding, buffer_txt_cifrado, iv, subkeys_aes);
+
+  // add cyphertext no arq de saida
+  fwrite(buffer_txt_cifrado, 1, tam_c_padding, saida);
+
+  // limpeza
+  memset(buffer_plain_text, 0, tam_c_padding);
+  memset(buffer_txt_cifrado, 0, tam_c_padding);
+  memset(subkeys_aes, 0, TAM_MAX_CHAVE_EXPANDIDA);
+
+  free(buffer_plain_text);
+  free(buffer_txt_cifrado);
+
+  fclose(entry);
+  fclose(saida);
+
+  printf("Arquivo %s cifrado com sucesso!", entry_path);
 }
 
 int main(){
