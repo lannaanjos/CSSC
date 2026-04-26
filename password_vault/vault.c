@@ -20,7 +20,7 @@ void gera_random(uint8_t *buffer, size_t tam){
   int fd = open("/dev/urandom", O_RDONLY); // file descriptor
   if (fd < 0){
     perror("Não foi possível abrir /dev/urandom");
-    exit 1;
+    exit(1);
   }
 
   ssize_t bytes_lidos = read(fd, buffer, tam);
