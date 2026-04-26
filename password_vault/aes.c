@@ -473,9 +473,9 @@ void imprimir_hex(const char* rotulo, const uint8_t* dados, size_t tamanho){
 }
 
 void cifrar_bloco(const uint8_t *entry, uint8_t *saida, const uint8_t *subkeys){
-  cifragem(entrada, subkeys, saida, NK_256);
+  cifragem(entry, subkeys, saida, NK_256);
 }
 
 void decifrar_bloco(const uint8_t *entry, uint8_t *saida, const uint8_t *subkeys){
-  decifragem(entrada, subkeys, saida, NK_256);
+  decifragem(entry, subkeys, saida, NK_256);
 }

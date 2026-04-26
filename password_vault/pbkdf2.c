@@ -5,7 +5,7 @@
 // saída: chave de 32 bytes.
 //
 #include <stdio.h>
-#include <string.>
+#include <string.h>
 #include "pbkdf2.h"
 #include "hmac.h"
 

@@ -167,7 +167,7 @@ void cifragem_arquivo(const char *entry_path){
       fclose(entry);
       exit(1);
     }
-  }
+  
 
   uint8_t salt[SALT_TAMANHO];
   uint8_t iv[IV_TAMANHO];
