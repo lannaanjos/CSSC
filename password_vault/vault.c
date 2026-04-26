@@ -348,6 +348,36 @@ void decifragem_arquivo(const char *entry_path){
 
 }
 
-int main(){
+// argc -> argument count 
+// argv -> argument vector (string q fazem parte do comando)
+// argv[0] = programa
+// argv[1] = primeiro arugmento/comando
+// argv[2] = arquivo
+int main(int argc, char *argv[]){
+  gerar_sbox();
+
+  if (argc < 2){ // ve se há argumentos suficientes.
+    printf("Uso:\n");
+    printf("  %s cifrar <arquivo>\n", argv[0]);
+    printf("  %s decifrar <arquivo.cifrado>\n", argv[0]);
+    return 1;
+  }
+
+  if(strcmp(argv[1], "cifrar") == 0){
+    if (argc < 3){
+      fprintf(stderr, "Erro: indique o arquivo a ser cifrado\n");
+      return 1;
+    }
+    cifragem_arquivo(argv[2]);
+  } else if (strcmp(argv[1], "decifrar") == 0){
+    if (argc < 3){
+      fprintf(stderr, "Erro, indique o arquivo a ser decifrado\n");
+      return 1;
+    }
+  } else {
+    fprintf(stderr, "Erro: comando desconhecido\n");
+    return 1;
+  }
+
   return 0;
 }
