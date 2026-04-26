@@ -386,18 +386,43 @@ void testar(){
   cifra_cbc(plain_text, 32, cifra_calculada, iv, subkeys);
 
   if (memcmp(cifra_calculada, resultado_esperado_cifra, 32) == 0){
-    printf("Sucesso na cifragem CBC\n");
+    printf("Sucesso na cifragem CBC >:D\n");
+    printf("\nCifragem esperada:\n");
+    for (int i = 0; i < 32; i++){
+      printf("%02x", resultado_esperado_cifra[i]);
+    }
+    printf("\nCifragem obtida:\n");
+    for (int i = 0; i < 32; i++){
+      printf("%02x", cifra_calculada[i]);
+    }
   } else {
-    printf("Falha na cifragem CBC\n");
+    printf("Falha na cifragem CBC :/\n");
+    printf("\nCifragem esperada:\n");
+    for (int i = 0; i < 32; i++){
+      printf("%02x", resultado_esperado_cifra[i]);
+    }
+    printf("\nCifragem obtida:\n");
+    for (int i = 0; i < 32; i++){
+      printf("%02x", cifra_calculada[i]);
+    }
   }
 
   uint8_t decifra_calc[32];
   decifra_cbc(cifra_calculada, 32, decifra_calc, iv, subkeys);
 
   if(memcmp(decifra_calc, plain_text, 32) == 0){
-    printf("Sucesso na decifragem\n");
+    printf("\n\nSucesso na decifragem CBC :O\n");
+    printf("\nDecifragem esperada:\n");
+    for (int i = 0; i < 32; i++){
+      printf("%02x", plain_text[i]);
+    }
+    printf("\nDecifragem obtida:\n");
+    for (int i = 0; i < 32; i++){
+      printf("%02x", decifra_calc[i]);
+    }
+
   } else {
-    printf("Falha na decifragem\n");
+    printf("\n\nFalha na decifragem :(\n");
     printf("\nDecifragem esperada:\n");
     for (int i = 0; i < 32; i++){
       printf("%02x", plain_text[i]);
@@ -440,6 +465,7 @@ int main(int argc, char *argv[]){
       fprintf(stderr, "Erro, indique o arquivo a ser decifrado\n");
       return 1;
     }
+    decifragem_arquivo(argv[2]);
   } else if (strcmp(argv[1], "testar") == 0){
       testar();
   } else {

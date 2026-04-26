@@ -441,18 +441,15 @@ void decifragem(const uint8_t cifra[TAMANHO_BYTES_ENTRADA],
   add_chave_rodada(estado, subkeys + nr * 16);
 
   for (int rodada = nr-1; rodada >= 1; rodada--){
-    sub_bytes_inversos(estado);
     embaralhar_linhas_inverso(estado);
-    misturar_colunas_inverso(estado);
-
-    // subkey rodada atual
+    sub_bytes_inversos(estado);
     add_chave_rodada(estado, subkeys + rodada * 16);
+    misturar_colunas_inverso(estado);
   }
 
   // ultima rodada
-  sub_bytes_inversos(estado);
   embaralhar_linhas_inverso(estado);
-
+  sub_bytes_inversos(estado);
   add_chave_rodada(estado, subkeys);
 
   // copia estado p saida
