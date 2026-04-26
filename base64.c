@@ -42,10 +42,16 @@ char* string_p_base64(const char* input){
   // base64 pega 3bytes (24 bits) e transforma em 4 caracteres de 6 bits cada
   // aqui pegamos exatamente 3 bytes por opr.
   while (i < input_tam) {
-    unsigned char byte1 = input[i++];
+    int bytes_reais = 0;
+
+    unsigned char byte1 = input[i++]; bytes_reais++;
     unsigned char byte2 = (i < input_tam) ? input[i++] : 0; // padding
+    if (i <= input_tam && byte2 != 0)
+      bytes_reais++;
     unsigned char byte3 = (i < input_tam) ? input[i++] : 0; // padding
-    
+    if (i <= input_tam && byte3 != 0)
+      bytes_reais++;
+
     // concat
     // u int tem 32 bits enquanto u char tem 8
     // aqui separamos os bytes 0, 1, 2 e 3 
@@ -63,18 +69,28 @@ char* string_p_base64(const char* input){
     unsigned char grupo3 = (concat_24bits >> 6) & 0x3F;     // n to alterando a var de concatenção
     unsigned char grupo4 = concat_24bits & 0x3F;
 
-    output[j++] = CARACTERES_BASE64[grupo1];
-    output[j++] = CARACTERES_BASE64[grupo2];
-    output[j++] = CARACTERES_BASE64[grupo3];
-    output[j++] = CARACTERES_BASE64[grupo4];
-
+    if (bytes_reais == 1){
+      output[j++] = CARACTERES_BASE64[grupo1];
+      output[j++] = CARACTERES_BASE64[grupo2];
+      output[j++] = '=';
+      output[j++] = '=';
+    } else if (bytes_reais == 2){
+      output[j++] = CARACTERES_BASE64[grupo1];
+      output[j++] = CARACTERES_BASE64[grupo2];
+      output[j++] = CARACTERES_BASE64[grupo3];
+      output[j++] = '=';
+    } else {
+      output[j++] = CARACTERES_BASE64[grupo1];
+      output[j++] = CARACTERES_BASE64[grupo2];
+      output[j++] = CARACTERES_BASE64[grupo3];
+      output[j++] = CARACTERES_BASE64[grupo4];
+    }   
   }
 
   output[j] = '\0';
-
   return output;
-}
 
+}
 
 int main(){
   int i = 1;
