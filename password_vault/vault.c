@@ -23,9 +23,9 @@ void gera_random(uint8_t *buffer, size_t tam){
     exit 1;
   }
 
-  ssize_t bytes_lidos = read(fd, buffer tam);
+  ssize_t bytes_lidos = read(fd, buffer, tam);
 
-  if (bytes_lidos != (ssizte_t)tam){
+  if (bytes_lidos != (ssize_t)tam){
     // n leu a qnt pedida
     perror("Não foi possível ler /dev/urandom");
     close(fd);
@@ -161,7 +161,7 @@ void cifragem_arquivo(const char *entry_path){
 
   snprintf(saida_path, sizeof(saida_path), "%s.cifrado", entry_path);
 
-  FILE *saida = fopen(saida_path, "wb")
+  FILE *saida = fopen(saida_path, "wb");
     if (!saida){
       perror("Imporssível abrir.\n");
       fclose(entry);
