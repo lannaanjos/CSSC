@@ -126,7 +126,7 @@ static void transformacao_sha256(SHA256_CONTEXTO *ctx, const uint8_t bloco[64]){
   // a ideia é ser altamente não-linear
 
   for (i = 0; i < 64; i++){
-    T1 = h + sigma1(e) + Choose(e, f, g) + P[i] + W[i];
+    T1 = h + Sigma1(e) + Choose(e, f, g) + P[i] + W[i];
     T2 = Sigma0(a) + Majority(a, b, c);
 
     h = g;
@@ -182,44 +182,45 @@ void sha256_atualiza(SHA256_CONTEXTO *ctx, const uint8_t *dados, size_t tam){
   // multiplica tam por 8 p converter byets em bits
   // usa-se uma var temp p evitar overflow.
 
+  // bytes_no_buffer calculado antes de atualizar o contador
+  // representa quantos bytes já estavam no buffer antes desta chamada
+  size_t bytes_no_buffer = (ctx->contador[0] >> 3) % 64;
+
   conta_bytes = ctx->contador[0] + (tam << 3);
 
-  // se acontecver overflow em contador[0] incrementa cont[1]
+  // se acontecer overflow em contador[0] incrementa cont[1]
   if (conta_bytes < ctx->contador[0]){
     ctx->contador[1]++;
   }
 
   ctx->contador[0] = conta_bytes;
-  ctx->contador[1] += (tam >> 29); // 2^32 bits = 536870912 bytes, ent shift 29 
+  ctx->contador[1] += (tam >> 29); // 2^32 bits = 536870912 bytes, ent shift 29
 
   // preenchimento do buffer.
   // se houver lixo no buffer, completamos até 64 bytes e então processamos o bloco completo.
-
-  size_t bytes_no_buffer = (ctx->contador[0] >> 3) % 64;
   espaco_buffer = 64 - bytes_no_buffer;
   
 
   if (tam >= espaco_buffer){
-    // copia oq cabe p completar o buffer
-    memcpy(ctx->buffer + (64 - espaco_buffer), dados, espaco_buffer);
-    
+    // completa o buffer a partir de onde já havia dados
+    memcpy(ctx->buffer + bytes_no_buffer, dados, espaco_buffer);
+
     // processa bloco completo
     transformacao_sha256(ctx, ctx->buffer);
 
-    // processa blocos completos restantes.
-    for (i = espaco_buffer; i + 64 <= tam; i+=64){
+    // processa blocos completos restantes
+    for (i = espaco_buffer; i + 64 <= tam; i += 64){
       transformacao_sha256(ctx, dados + i);
     }
 
-    // reseta buffer
+    // reseta buffer e copia sobra a partir do início (buffer está vazio)
     memset(ctx->buffer, 0, 64);
+    if (i < tam){
+      memcpy(ctx->buffer, dados + i, tam - i);
+    }
   } else {
-    i = 0;
-  }
-
-  // copia resto dos dados p buffer (< q um bloco)
-  if (i < tam){
-    memcpy(ctx->buffer + (64 - espaco_buffer) + (i - espaco_buffer), dados + i, tam - i);
+    // buffer não foi processado: acrescenta após os bytes já existentes
+    memcpy(ctx->buffer + bytes_no_buffer, dados, tam);
   }
 }
 
@@ -239,16 +240,21 @@ void sha256_final(SHA256_CONTEXTO *ctx, uint8_t hash[32]){
   uint8_t padding[64];
 
   // preparação do padding
-  // ele sempre começa com 0x00 (bit 1 seguido de zeros
+  // ele sempre começa com 0x80 (bit 1 seguido de zeros)
 
   memset(padding, 0, sizeof(padding));
   padding[0] = 0x80;
 
   // calc espaço necessário
-  // é necessário q a msg + padding seja multiplo de 521,
+  // é necessário q a msg + padding seja multiplo de 512,
   //
   // tam_atual = bytes ja processados % 64;
   // espaço necessario = 56 - tam_atual (se > 0, senão +64)
+
+  // comprimento original salvo antes de qualquer padding
+  // o contador será modificado pelas chamadas de sha256_atualiza abaixo
+  bits_altos = ctx->contador[1];
+  bits_baixos = ctx->contador[0];
 
   tam_atual = (ctx->contador[0] >> 3) % 64;
 
@@ -259,9 +265,7 @@ void sha256_final(SHA256_CONTEXTO *ctx, uint8_t hash[32]){
     sha256_atualiza(ctx, padding, 64 + 56 - tam_atual);
   }
 
-  // add comprimento original
-  bits_altos = ctx->contador[1];
-  bits_baixos = ctx->contador[0];
+  // add comprimento original (64 bits, big-endian)
     
   padding[0] = (bits_altos >> 24) & 0xFF;
   padding[1] = (bits_altos >> 16) & 0xFF;
