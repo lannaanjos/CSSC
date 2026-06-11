@@ -6,23 +6,21 @@
 import os
 import sys
 
-# /\ CONSTANTES
-
+# /\ CONST
 BITS_PRIMO  = 1024
 E_PUBLICO   = 65537
 
 # /\ MILLER-RABIN
-
+# escreve n-1 como 2^r * d com d ímpar, retorna (r, d)
 def _fatora_potencia_dois(n):
-    """escreve n-1 como 2^r * d com d ímpar, retorna (r, d)"""
     r, d = 0, n - 1
     while d % 2 == 0:
         d //= 2
         r  += 1
     return r, d
 
+# volta true se n passar no teste com testmunha a
 def _miller_rabin_testemunha(n, a):
-    """retorna True se n passa no teste com testemunha a"""
     r, d = _fatora_potencia_dois(n)
     x = pow(a, d, n)
 
@@ -41,7 +39,6 @@ def _miller_rabin_testemunha(n, a):
 _TESTEMUNHAS = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37]
 
 def eh_primo(n):
-    """retorna True se n é provavelmente primo"""
     if n < 2:  return False
     if n == 2: return True
     if n % 2 == 0: return False
@@ -49,9 +46,8 @@ def eh_primo(n):
     return all(_miller_rabin_testemunha(n, a) for a in _TESTEMUNHAS)
 
 # /\ GERAÇÃO DE PRIMOS
-
+# gera um primo aleatório de bits bits via os.urandom
 def _gera_primo(bits):
-    """gera um primo aleatório de exatamente `bits` bits via os.urandom"""
     n_bytes = bits // 8
 
     while True:
@@ -70,14 +66,11 @@ def _gera_primo(bits):
         candidato += 2
 
 # /\ GERAÇÃO DE CHAVES
-
+# gera par de chaves de 2048 bits
+# retorna public e private key
+# privada = d, n
+# publica = e, n
 def gerar_chaves():
-    """
-    gera par de chaves RSA de 2048 bits
-    retorna (chave_publica, chave_privada) onde:
-        chave_publica  = (e, n)
-        chave_privada  = (d, n)
-    """
     print("[*] gerando primo p...")
     p = _gera_primo(BITS_PRIMO)
 
@@ -91,8 +84,7 @@ def gerar_chaves():
     phi = (p - 1) * (q - 1)
     e   = E_PUBLICO
 
-    # d = inverso modular de e em relação a phi(n)
-    # pow(e, -1, phi) disponível desde Python 3.8
+    # d = inverso modular de e em relação a phi(n) 
     d = pow(e, -1, phi)
 
     print("[ok] chaves geradas\n")
@@ -102,56 +94,47 @@ def gerar_chaves():
 
     return chave_publica, chave_privada
 
-# /\ CIFRAÇÃO E DECIFRAÇÃO
+# /\ CIFRAGEM E DECIFRAGEM
 
+# cifra o int m com a public key
+# resultado = m^e mod n, e obrigatório m < n
 def cifrar(m, chave_publica):
-    """
-    cifra o inteiro m com a chave pública
-    resultado = m^e mod n
-    m deve ser menor que n
-    """
     e, n = chave_publica
     return pow(m, e, n)
 
+# decifra o int c com a private key
+# resultado = c^d mod n
 def decifrar(c, chave_privada):
-    """
-    decifra o inteiro c com a chave privada
-    resultado = c^d mod n
-    """
+
     d, n = chave_privada
     return pow(c, d, n)
 
 # /\ SERIALIZAÇÃO DE MENSAGENS
-
 # tamanho do bloco em bytes: 2048 bits = 256 bytes
 # cada mensagem é cifrada como um inteiro menor que n
 BLOCO_BYTES = 256
 
 def texto_para_inteiro(texto):
-    """converte string utf-8 para inteiro"""
+    # converte string utf-8 para inteiro
     return int.from_bytes(texto.encode('utf-8'), byteorder='big')
 
 def inteiro_para_texto(valor):
-    """converte inteiro de volta para string utf-8"""
+    # converte inteiro de volta para string utf-8
     n_bytes = (valor.bit_length() + 7) // 8
     return valor.to_bytes(n_bytes, byteorder='big').decode('utf-8')
 
+# cifra uma string com a public key
+# retorna o ciphertext como string hex p transmissão
 def cifrar_mensagem(texto, chave_publica):
-    """
-    cifra uma string com a chave pública
-    retorna o ciphertext como string hex para transmissão
-    """
     m = texto_para_inteiro(texto)
     c = cifrar(m, chave_publica)
     hex_c = hex(c)[2:]  # remove o prefixo '0x'
     print(f"[rsa] mensagem cifrada: {hex_c[:64]}...")
     return hex_c
 
+# decifra uma string hex com a private key
+# retorna texto original
 def decifrar_mensagem(hex_c, chave_privada):
-    """
-    decifra uma string hex com a chave privada
-    retorna o texto original
-    """
     print(f"[rsa] mensagem criptografada recebida: {hex_c[:64]}...")
     c = int(hex_c, 16)
     m = decifrar(c, chave_privada)
@@ -160,14 +143,13 @@ def decifrar_mensagem(hex_c, chave_privada):
     return texto
 
 # /\ SERIALIZAÇÃO DE CHAVES
-
+# serializa (e,n) como 'hex_e:hex_n' p handshake
 def chave_publica_para_hex(chave_publica):
-    """serializa (e, n) como 'hex_e:hex_n' para o handshake"""
     e, n = chave_publica
     return f"{hex(e)[2:]}:{hex(n)[2:]}"
 
+# desserializa 'hex_e:hex_n' p (e,n)
 def chave_publica_de_hex(s):
-    """desserializa 'hex_e:hex_n' para (e, n)"""
     partes = s.split(':')
     if len(partes) != 2:
         raise ValueError("formato de chave pública inválido")
@@ -176,9 +158,8 @@ def chave_publica_de_hex(s):
     return (e, n)
 
 # /\/\/\ TESTE
-
-if __name__ == '__main__':
-    print("///////// TESTE RSA Python /////////\n")
+'''if __name__ == '__main__':
+    print("///////// TESTE RSA no PyPy /////////\n")
 
     pub, priv = gerar_chaves()
 
@@ -191,8 +172,8 @@ if __name__ == '__main__':
     print(f"\n[*] mensagem recuperada: {recuperada}")
 
     if mensagem == recuperada:
-        print("\n[ok] SUCESSO: mensagem decifrada bate com a original")
+        print("\n[sucessinho]: mensagem decifrada bate com a original !")
     else:
-        print("\n[FALHA] mensagem decifrada NAO bate com a original")
+        print("\n[falha aff] mensagem decifrada NAO bate com a original !!!!!!")
 
-    print("\n///////// fim /////////")
+    print("\n:O cabou-se\n")'''
