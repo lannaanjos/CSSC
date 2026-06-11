@@ -8,12 +8,10 @@ import urllib.error
 from rsa import chave_publica_para_hex, chave_publica_de_hex, cifrar_mensagem
 
 # /\ HANDSHAKE
+# envia a própria public key p outro cliente via POST /handshake
+# retorna a public key do outro como (e,n) ou none se falahr
 
-def enviar_handshake(url_outro, chave_publica_propria):
-    """
-    envia a própria chave pública para o outro via POST /handshake
-    retorna a chave pública do outro como (e, n), ou None em falha
-    """
+def enviar_handshake(url_outro, chave_publica_propria) -> Tuple | None:
     url  = f"{url_outro.rstrip('/')}/handshake"
     body = json.dumps({
         'chave_publica': chave_publica_para_hex(chave_publica_propria)
@@ -39,12 +37,10 @@ def enviar_handshake(url_outro, chave_publica_propria):
         return None
 
 # /\ ENVIO DE MENSAGEM
+# cifra o texto c/ a public key do outro e envia via POST /mensagem
+# true sucesso, false falha
 
-def enviar_mensagem(url_outro, texto, chave_publica_outro):
-    """
-    cifra texto com a chave pública do outro e envia via POST /mensagem
-    retorna True em sucesso, False em falha
-    """
+def enviar_mensagem(url_outro, texto, chave_publica_outro) -> bool:
     print(f"[cliente] enviando mensagem...")
 
     hex_c = cifrar_mensagem(texto, chave_publica_outro)
