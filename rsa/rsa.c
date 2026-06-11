@@ -8,7 +8,13 @@
 #include <unistd.h>
 #include "rsa.h"
 
-// /\ AUXILIARES INTERNOS
+// /\ AUX
+
+// SÓ FUNCIONA NO LINUX
+// /dev/random é a interface padrão linux p entropia criptograficamente segura
+// kernel coleta ruido do hardware e alimenta um CSPRNG interno            // CSPRNG = Cryptographically Secure Pseudo-Random Number Generator
+// qnd pegamos daqui, são bytes desse pool, não um rand mixuruca
+// logo é mais seguro pq é completamente inviável deduzir tanto p frente qnt p trás
 
 // lê tam bytes de /dev/urandom para buf
 // retorna 0 em sucesso, -1 em falha
@@ -103,7 +109,7 @@ static int miller_rabin_testemunha(const BigInt *n, const BigInt *a){
   return 0;
 }
 
-// teste de primalidade determinístico para números até ~3.3 * 10^24
+// teste determinisctico de primos p numeros até ~3.3 * 10^24
 // testemunhas fixas cobrem todos os compostos nessa faixa
 // para primos de 1024 bits o teste é probabilístico com erro < 4^-12
 static int eh_primo(const BigInt *n){
@@ -206,7 +212,7 @@ int rsa_gerar_chaves(ChavePublica *pub, ChavePrivada *priv){
   return 0;
 }
 
-// /\ CIFRAÇÃO E DECIFRAÇÃO
+// /\ CIFRAGEM e DECIFRAGEM
 
 // resultado = m^e mod n
 void rsa_cifrar(BigInt *resultado, const BigInt *m, const ChavePublica *pub){
@@ -218,7 +224,7 @@ void rsa_decifrar(BigInt *resultado, const BigInt *c, const ChavePrivada *priv){
   bigint_expmod(resultado, c, &priv->d, &priv->n);
 }
 
-// /\ I/O DE CHAVES
+// /\ IO DE CHAVES
 // formato: <campo_hex>:<n_hex>
 // cada campo tem BIGINT_LIMBS * 8 caracteres hex
 // separados por ':' e terminados em '\0'
@@ -249,7 +255,7 @@ int rsa_priv_de_hex(ChavePrivada *priv, const char *buf){
   return 0;
 }
 
-// /\/\/\ TESTES
+// /\/\/\ TESTE
 
 // tamanho do buffer para serialização de uma chave:
 // dois campos hex de BIGINT_LIMBS*8 chars + separador ':' + terminador '\0'
@@ -268,12 +274,12 @@ int main(void){
   printf("///////// TESTE RSA 2048 bits /////////\n\n");
 
   // geração de chaves
-  printf("[*] gerando chaves RSA (pode demorar alguns segundos)...\n");
+  printf("[*] gerando chaves RSA (demora um tiquinho)...\n");
   if (rsa_gerar_chaves(&pub, &priv) != 0){
     fprintf(stderr, "erro: falha na geração de chaves\n");
     return 1;
   }
-  printf("[ok] chaves geradas\n\n");
+  printf("[SUCESSO] chaves geradas\n\n");
 
   // serialização
   rsa_pub_para_hex(&pub,  buf_pub);
@@ -299,11 +305,11 @@ int main(void){
 
   // verificação
   if (bigint_igual(&mensagem, &decifrado)){
-    printf("\n[ok] SUCESSO: mensagem decifrada bate com a original\n");
+    printf("\n[SUCESSO] mensagem decifrada bate com a original !!! \\o/ \n");
   } else {
-    printf("\n[FALHA] mensagem decifrada NAO bate com a original\n");
+    printf("\n[ATENCAO] mensagem decifrada NAO bate com a original!\n");
   }
 
-  printf("\n///////// fim /////////\n");
+  printf("\nfim!! :D\n");
   return 0;
 }
