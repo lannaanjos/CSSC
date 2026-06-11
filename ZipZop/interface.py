@@ -1,33 +1,32 @@
 # /\/\/\ interface.py
 # interface gráfica do ZipZop
-# layout flat e funcional, paleta azul bebê
 # duas telas: conexão e chat
+
+# p testar bacana basta abrir dois terminais e rodar o programa nos dois
 
 import tkinter as tk
 from tkinter import scrolledtext
 import threading
 
-# /\ PALETA
-
-COR_FUNDO        = "#D6EAF5"  # azul gelo (fundo geral)
-COR_BOTAO        = "#4A86A8"  # azul escuro (botões)
+# /\ CORES
+COR_FUNDO = "#D6EAF5"  # azul gelo (fundo geral)
+COR_BOTAO = "#4A86A8"  # azul escuro (botões)
 COR_BOTAO_HOVER  = "#3A6A8A"  # azul escuro hover
-COR_TEXTO        = "#1C3A4A"  # marinho (texto geral)
+COR_TEXTO = "#1C3A4A"  # marinho (texto geral)
 COR_TEXTO_BRANCO = "#FFFFFF"  # branco (texto em botões)
-COR_ENTRADA      = "#FFFFFF"  # branco (campos de entrada)
-COR_EU           = "#4A86A8"  # mensagem própria
-COR_OUTRO        = "#7AAFC7"  # mensagem do outro
-COR_SYS          = "#7AAFC7"  # mensagem de sistema
-COR_STATUS_OK    = "#2E7D52"  # verde status ok
-COR_STATUS_ERR   = "#A03030"  # vermelho status erro
+COR_ENTRADA = "#FFFFFF"  # branco (campos de entrada)
+COR_EU = "#4A86A8"  # msg própria
+COR_OUTRO = "#7AAFC7"  # msg do outro
+COR_SYS = "#7AAFC7"  # msg sys
+COR_STATUS_OK = "#2E7D52"  # verde status ok
+COR_STATUS_ERR = "#A03030"  # vermelho status erro
 
 # /\ JANELA PRINCIPAL
-
 class App(tk.Tk):
 
     def __init__(self):
         super().__init__()
-        self.title("ZipZop")
+        self.title("RadiaTalk") # insp da Radia Pearlamn, criadora do roteamento Internet e Ethernet :))
         self.geometry("360x500")
         self.resizable(False, False)
         self.configure(bg=COR_FUNDO)
@@ -42,20 +41,19 @@ class App(tk.Tk):
         self._mostra_conexao()
 
     # /\ TELA DE CONEXÃO
-
     def _constroi_tela_conexao(self):
         self.frame_conexao = tk.Frame(self, bg=COR_FUNDO)
 
         tk.Label(
             self.frame_conexao,
-            text="ZipZop",
+            text="RadiaTalk",
             font=("Courier", 22, "bold"),
             bg=COR_FUNDO, fg=COR_TEXTO
         ).pack(pady=(40, 4))
 
         tk.Label(
             self.frame_conexao,
-            text="chat cifrado P2P",
+            text="chat cifrado P2P RSA",
             font=("Helvetica", 9),
             bg=COR_FUNDO, fg=COR_BOTAO
         ).pack(pady=(0, 32))
@@ -193,7 +191,6 @@ class App(tk.Tk):
         self.label_status.config(text=texto, fg=cor)
 
     # /\ TELA DE CHAT
-
     def _constroi_tela_chat(self):
         self.frame_chat = tk.Frame(self, bg=COR_FUNDO)
 
@@ -253,7 +250,6 @@ class App(tk.Tk):
             ).start()
 
     # /\ TROCA DE TELAS
-
     def _mostra_conexao(self):
         self.frame_chat.pack_forget()
         self.frame_conexao.pack(fill='both', expand=True)
@@ -262,8 +258,7 @@ class App(tk.Tk):
         self.frame_conexao.pack_forget()
         self.frame_chat.pack(fill='both', expand=True)
 
-    # /\ API PÚBLICA
-
+    # /\ API
     def conectado(self):
         self.after(0, self._mostra_chat)
         self.after(0, lambda: self.adicionar_mensagem_sistema("conexão estabelecida"))

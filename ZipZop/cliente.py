@@ -11,7 +11,7 @@ from rsa import chave_publica_para_hex, chave_publica_de_hex, cifrar_mensagem
 # envia a própria public key p outro cliente via POST /handshake
 # retorna a public key do outro como (e,n) ou none se falahr
 
-def enviar_handshake(url_outro, chave_publica_propria) -> Tuple | None:
+def enviar_handshake(url_outro, chave_publica_propria) -> tuple | None:
     url  = f"{url_outro.rstrip('/')}/handshake"
     body = json.dumps({
         'chave_publica': chave_publica_para_hex(chave_publica_propria)
