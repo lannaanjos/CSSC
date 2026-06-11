@@ -36,7 +36,8 @@ int bigint_cmp(const BigInt *a, const BigInt *b){
 // percorre do limb menos significativo (digitos[63]) ao mais (digitos[0])
 // a soma de dois limbs de 32 bits pode produzir 33 bits
 // o bit extra é o carry, passado pro limb seguinte via uint64_t temporário
-// retorna 1 se houve overflow (carry saiu dos 2048 bits), 0 caso contrário
+// retorna 1 se houve overflow (carry saiu dos 2048 bits)
+//0 caso contrário
 int bigint_add(BigInt *resultado, const BigInt *a, const BigInt *b){
   uint64_t soma;
   uint32_t carry = 0;
@@ -52,9 +53,9 @@ int bigint_add(BigInt *resultado, const BigInt *a, const BigInt *b){
 }
 
 // percorre do limb menos significativo ao mais significativo
-// se a->digitos[i] - b->digitos[i] - borrow for negativo,
+// se (a->digitos[i] - b->digitos[i] - borrow) for negativo,
 // promovemos pra uint64_t e somamos 2^32 (empréstimo do limb seguinte)
-// o borrow extraído do bit 32 indica que o empréstimo ocorreu
+// o borrow extraído do bit 32 indica q o empréstimo ocorreu
 // assume a >= b: comportamento indefinido caso contrário
 int bigint_sub(BigInt *resultado, const BigInt *a, const BigInt *b){
   uint64_t diff;
@@ -64,7 +65,7 @@ int bigint_sub(BigInt *resultado, const BigInt *a, const BigInt *b){
   for (i = BIGINT_LIMBS - 1; i >= 0; i--){
     diff = (uint64_t)a->digitos[i] - (uint64_t)b->digitos[i] - borrow;
     resultado->digitos[i] = (uint32_t)diff;
-    /* se diff < 0, o bit 32 estará setado no uint64_t (complemento de 2) */
+    // se diff < 0, o bit 32 estará setado no uint64_t (complemento de 2)
     borrow = (diff >> 32) & 1;
   }
 
@@ -78,16 +79,17 @@ int bigint_sub(BigInt *resultado, const BigInt *a, const BigInt *b){
 // o produto parcial acumula na posição correta do resultado
 // produto de dois uint32_t cabe exatamente em uint64_t sem perda
 void bigint_mul(BigInt *resultado, const BigInt *a, const BigInt *b){
-  /* acumulador intermediário com o dobro de limbs para evitar overflow */
+  // acumulador intermediário com o dobro de limbs para evitar overflow
   uint64_t acc[BIGINT_LIMBS * 2];
   uint64_t produto;
   int i, j;
 
   memset(acc, 0, sizeof(acc));
 
-  /* índices big-endian: o limb menos significativo está em [BIGINT_LIMBS-1]
-     para i e j variando de 0 a BIGINT_LIMBS-1, o produto parcial a[i]*b[j]
-     contribui para a posição i+j+1 no acumulador de tamanho duplo */
+  //índices big-endian: o limb menos significativo está em [BIGINT_LIMBS-1]
+  //para i e j variando de 0 a BIGINT_LIMBS-1, o produto parcial a[i]*b[j]
+  //contribui para a posição i+j+1 no acumulador de tamanho duplo
+
   for (i = BIGINT_LIMBS - 1; i >= 0; i--){
     for (j = BIGINT_LIMBS - 1; j >= 0; j--){
       produto = (uint64_t)a->digitos[i] * (uint64_t)b->digitos[j];
@@ -95,29 +97,28 @@ void bigint_mul(BigInt *resultado, const BigInt *a, const BigInt *b){
     }
   }
 
-  /* propagação de carries: cada posição pode ter acumulado vários produtos */
+  // propagação de carries: cada posição pode ter acumulado vários produtos
   for (i = 2 * BIGINT_LIMBS - 1; i > 0; i--){
     acc[i - 1] += acc[i] >> 32;
     acc[i] &= 0xFFFFFFFF;
   }
 
-  /* copia os BIGINT_LIMBS limbs menos significativos para o resultado
-     os BIGINT_LIMBS mais significativos são descartados (overflow) */
+  // copia os BIGINT_LIMBS limbs menos significativos para o resultado
+  // os BIGINT_LIMBS mais significativos são descartados (overflow)
   for (i = 0; i < BIGINT_LIMBS; i++){
     resultado->digitos[i] = (uint32_t)acc[BIGINT_LIMBS + i];
   }
 }
 
-// /\ AUXILIARES DE DESLOCAMENTO (internas, não expostas no header)
-
-/* desloca a 1 bit para a esquerda: a <<= 1
-   retorna o bit que saiu pelo topo (0 ou 1) */
+// /\ AUXILIARES DE DESLOCAMENTO
+// desloca a 1 bit para a esquerda: a <<= 1
+//retorna o bit q saiu pelo topo (0 ou 1)
 static uint32_t bigint_shl1(BigInt *a){
   uint32_t carry = 0, prox;
   int i;
 
   for (i = BIGINT_LIMBS - 1; i >= 0; i--){
-    prox  = a->digitos[i] >> 31;   /* bit que vai ser perdido */
+    prox  = a->digitos[i] >> 31;   // bit q vai ser perdido
     a->digitos[i] = (a->digitos[i] << 1) | carry;
     carry = prox;
   }
@@ -125,19 +126,19 @@ static uint32_t bigint_shl1(BigInt *a){
   return carry;
 }
 
-/* desloca a 1 bit para a direita: a >>= 1 */
+// desloca a 1 bit para a direita: a >>= 1
 static void bigint_shr1(BigInt *a){
   uint32_t carry = 0, prox;
   int i;
 
   for (i = 0; i < BIGINT_LIMBS; i++){
-    prox = a->digitos[i] & 1;           /* bit que desce pro próximo limb */
+    prox = a->digitos[i] & 1;           // bit q desce pro próximo limb
     a->digitos[i] = (a->digitos[i] >> 1) | (carry << 31);
     carry = prox;
   }
 }
 
-/* retorna o número de bits significativos de a (posição do bit mais alto) */
+// retorna o número de bits significativos de a (posição do bit mais alto)
 static int bigint_nbits(const BigInt *a){
   int i, b;
 
@@ -174,29 +175,29 @@ void bigint_divmod(BigInt *quociente, BigInt *resto,
   bits_a = bigint_nbits(a);
   bits_b = bigint_nbits(b);
 
-  /* resto começa como a; subtraímos o divisor deslocado conforme avançamos */
+  // resto começa como a; subtraímos o divisor deslocado conforme avançamos
   *resto = *a;
 
-  if (bits_b == 0) return; /* divisão por zero: retorna sem fazer nada */
+  if (bits_b == 0) return; // divisão por zero: retorna sem fazer nada
 
   deslocamentos = bits_a - bits_b;
 
   if (deslocamentos < 0){
-    /* b > a: quociente = 0, resto = a */
+    // b > a: quociente = 0, resto = a
     *quociente = q;
     return;
   }
 
-  /* alinha divisor com o bit mais alto de a */
+  // alinha divisor com o bit mais alto de a
   for (i = 0; i < deslocamentos; i++){
     bigint_shl1(&divisor);
   }
 
-  /* percorre cada posição de bit do quociente */
+  // percorre cada posição de bit do quociente
   for (i = deslocamentos; i >= 0; i--){
     if (bigint_cmp(resto, &divisor) >= 0){
       bigint_sub(resto, resto, &divisor);
-      /* marca o bit i no quociente (big-endian) */
+      // marca o bit i no quociente (big-endian)
       q.digitos[BIGINT_LIMBS - 1 - i / 32] |= (uint32_t)1 << (i % 32);
     }
     bigint_shr1(&divisor);
@@ -206,7 +207,6 @@ void bigint_divmod(BigInt *quociente, BigInt *resto,
 }
 
 // /\ EXPONENCIAÇÃO MODULAR
-
 // resultado = base^exp mod n
 // algoritmo square-and-multiply:
 //   percorre os bits de exp do mais significativo ao menos significativo
@@ -219,25 +219,25 @@ void bigint_expmod(BigInt *resultado,
   int nbits, i, limb_idx, bit_idx;
   uint32_t bit;
 
-  bigint_de_u32(&r, 1);   /* resultado começa em 1 */
+  bigint_de_u32(&r, 1);   // resultado começa em 1
   b = *base;
 
-  /* reduz base mod n antes de começar */
+  // reduz base mod n antes de começar
   bigint_divmod(&q, &b, base, n);
 
   nbits = bigint_nbits(exp);
 
   for (i = nbits - 1; i >= 0; i--){
-    /* extrai o bit i de exp (big-endian) */
+    // extrai o bit i de exp (big-endian)
     limb_idx = BIGINT_LIMBS - 1 - i / 32;
     bit_idx  = i % 32;
     bit = (exp->digitos[limb_idx] >> bit_idx) & 1;
 
-    /* quadrado: r = r^2 mod n */
+    // quadrado: r = r^2 mod n
     bigint_mul(&quadrado, &r, &r);
     bigint_divmod(&q, &r, &quadrado, n);
 
-    /* se bit == 1: r = r * base mod n */
+    // se bit == 1: r = r * base mod n
     if (bit){
       bigint_mul(&produto, &r, &b);
       bigint_divmod(&q, &r, &produto, n);
@@ -247,14 +247,14 @@ void bigint_expmod(BigInt *resultado,
   *resultado = r;
 }
 
-// /\ ALGORITMO DE EUCLIDES ESTENDIDO
+// EUCLIDES ESTENDIDO
 
-// calcula mdc(a, b) e o coeficiente x tal que a*x ≡ mdc(a,b) (mod b)
+// calcula mdc(a, b) e o coeficiente x tal q a*x ≡ mdc(a,b) (mod b)
 // quando mdc(a,b) == 1, x é o inverso modular de a em relação a b
-// usado para encontrar d tal que e*d ≡ 1 (mod φ(n))
+// usado para encontrar d tal q e*d ≡ 1 (mod φ(n))
 //
 // trabalha inteiramente com valores positivos usando a identidade:
-//   se o coeficiente seria negativo, usa coef + modulo no lugar
+//   se o coeficiente fosse negativo, usa coef + modulo no lugar
 void bigint_mdc_estendido(BigInt *mdc_out, BigInt *x, BigInt *y,
                           const BigInt *a, const BigInt *b){
   BigInt r0, r1, s0, s1, t0, t1;
@@ -268,11 +268,11 @@ void bigint_mdc_estendido(BigInt *mdc_out, BigInt *x, BigInt *y,
   r1 = *b;  bigint_de_u32(&s1, 0);  bigint_de_u32(&t1, 1);
 
   while (!bigint_igual(&r1, &zero)){
-    /* q = r0 / r1, r = r0 % r1 */
+    // q = r0 / r1, r = r0 % r1
     bigint_divmod(&q, &r, &r0, &r1);
 
-    /* s_tmp = s0 - q * s1 (mod b)
-       reduz prod mod b antes de subtrair para manter valores dentro do BigInt */
+    // s_tmp = s0 - q * s1 (mod b)
+    // reduz prod mod b antes de subtrair para manter valores dentro do BigInt
     bigint_mul(&prod, &q, &s1);
     bigint_divmod(&diff, &prod, &prod, b);
     if (bigint_cmp(&s0, &prod) >= 0){
@@ -282,8 +282,8 @@ void bigint_mdc_estendido(BigInt *mdc_out, BigInt *x, BigInt *y,
       bigint_sub(&s_tmp, b, &diff);
     }
 
-    /* t_tmp = t0 - q * t1 (mod b)
-       reutiliza o mesmo q calculado acima (q = r0 / r1) */
+    // t_tmp = t0 - q * t1 (mod b)
+    // reutiliza o mesmo q calculado acima (q = r0 / r1)
     bigint_mul(&prod, &q, &t1);
     bigint_divmod(&diff, &prod, &prod, b);
     if (bigint_cmp(&t0, &prod) >= 0){
