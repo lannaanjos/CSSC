@@ -1,2 +1,5 @@
+# saidas
 *.exe
 output/
+base64
+vault
