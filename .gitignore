@@ -3,3 +3,6 @@
 output/
 base64
 vault
+
+# coisa de cache
+__pycache__/
