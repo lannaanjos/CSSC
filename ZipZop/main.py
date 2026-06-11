@@ -2,9 +2,9 @@
 # ponto de entrada do ZipZop
 # orquestra: geração de chaves, servidor HTTP, cliente e interface Tkinter
 
-from rsa       import gerar_chaves
-from servidor  import Servidor
-from cliente   import enviar_handshake, enviar_mensagem
+from rsa import gerar_chaves
+from servidor import Servidor
+from cliente import enviar_handshake, enviar_mensagem
 from interface import App
 
 # /\ ESTADO COMPARTILHADO
@@ -26,10 +26,10 @@ estado_servidor = {
 
 servidor = None
 
-# /\ AUXILIAR: prepara chaves e servidor
+# /\ AUX prepara chaves e servidor
 
+# gera chave rsa e sobe server na porta dada
 def _prepara(porta):
-    """gera chaves RSA e sobe o servidor na porta dada"""
     global servidor
 
     print("[main] gerando chaves RSA...")
@@ -44,22 +44,16 @@ def _prepara(porta):
     servidor.iniciar()
 
 # /\ CALLBACKS
-
+# gera chave, sobe server e espera handshake
+# handshake chega via POSt /handshake no server
+# qnd chega o handshake abre o chat
 def on_aguardar(porta):
-    """
-    gera chaves, sobe servidor e aguarda o handshake do outro
-    o handshake chega via POST /handshake no servidor
-    quando chegar, on_handshake_recebido abre o chat
-    """
     _prepara(porta)
     app.after(0, lambda: app._status("aguardando conexão...", erro=False))
     print("[main] aguardando handshake do outro lado...")
 
-
+# gera chaves, sobe server e inicia handshake
 def on_conectar(porta, url_outro):
-    """
-    gera chaves, sobe servidor e inicia o handshake ativamente
-    """
     global servidor
 
     estado['url_outro'] = url_outro
@@ -80,9 +74,8 @@ def on_conectar(porta, url_outro):
     print("[main] handshake concluído, chat pronto\n")
     app.conectado()
 
-
+# manda msg cifrada p outro
 def on_enviar(texto):
-    """envia mensagem cifrada para o outro"""
     chave_outro = estado['chave_publica_outro']
     url_outro   = estado['url_outro']
 
@@ -97,17 +90,13 @@ def on_enviar(texto):
     else:
         app.adicionar_mensagem_sistema("falha ao enviar mensagem")
 
-
+# server chama ao receber e decifrar uma msg
 def on_mensagem_recebida(texto):
-    """chamado pelo servidor ao receber e decifrar uma mensagem"""
     app.adicionar_mensagem('outro', texto)
 
-
+# server chama qnd o outro faz post handshake
+# guarda a chave do outro e abre o chat.
 def on_handshake_recebido():
-    """
-    chamado pelo servidor quando o outro faz POST /handshake
-    armazena a chave do outro e abre o chat
-    """
     print("[main] handshake recebido, chat pronto\n")
 
     # a chave do outro já foi salva no estado_servidor pelo handler
@@ -121,7 +110,6 @@ def on_handshake_recebido():
 
 
 # /\ MAIN
-
 if __name__ == '__main__':
     estado_servidor['cb_mensagem']  = on_mensagem_recebida
     estado_servidor['cb_handshake'] = on_handshake_recebido
