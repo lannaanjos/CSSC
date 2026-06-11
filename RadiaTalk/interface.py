@@ -9,24 +9,32 @@ from tkinter import scrolledtext
 import threading
 
 # /\ CORES
-COR_FUNDO = "#D6EAF5"  # azul gelo (fundo geral)
-COR_BOTAO = "#4A86A8"  # azul escuro (botões)
-COR_BOTAO_HOVER  = "#3A6A8A"  # azul escuro hover
-COR_TEXTO = "#1C3A4A"  # marinho (texto geral)
-COR_TEXTO_BRANCO = "#FFFFFF"  # branco (texto em botões)
-COR_ENTRADA = "#FFFFFF"  # branco (campos de entrada)
-COR_EU = "#4A86A8"  # msg própria
-COR_OUTRO = "#7AAFC7"  # msg do outro
-COR_SYS = "#7AAFC7"  # msg sys
-COR_STATUS_OK = "#2E7D52"  # verde status ok
-COR_STATUS_ERR = "#A03030"  # vermelho status erro
+ROSE = "#c5afa4"
+ROSA = "#cc7e85"
+FRAMBOESA = "#cf4d6f"
+LILAS = "#a36d90"
+ESCURO = "#3d2e35"
+BRANCO = "#ffffff"
+
+COR_FUNDO = ROSA      
+COR_BOTAO = LILAS      
+COR_BOTAO_HOVER = ESCURO     
+COR_TEXTO = ESCURO     
+COR_TEXTO_BRANCO = BRANCO  
+COR_ENTRADA = BRANCO     
+COR_TEXTO_CAMPO = ESCURO  
+COR_EU = LILAS     
+COR_OUTRO = FRAMBOESA  
+COR_SYS = ROSE       
+COR_STATUS_OK = ESCURO     
+COR_STATUS_ERR = FRAMBOESA  
 
 # /\ JANELA PRINCIPAL
 class App(tk.Tk):
 
     def __init__(self):
         super().__init__()
-        self.title("RadiaTalk") # insp da Radia Pearlamn, criadora do roteamento Internet e Ethernet :))
+        self.title("RadiaTalk") # insp da Radia Perlman, criadora do roteamento Internet e Ethernet :))
         self.geometry("360x500")
         self.resizable(False, False)
         self.configure(bg=COR_FUNDO)
@@ -55,7 +63,7 @@ class App(tk.Tk):
             self.frame_conexao,
             text="chat cifrado P2P RSA",
             font=("Helvetica", 9),
-            bg=COR_FUNDO, fg=COR_BOTAO
+            bg=COR_FUNDO, fg=COR_TEXTO
         ).pack(pady=(0, 32))
 
         # porta local
@@ -69,9 +77,9 @@ class App(tk.Tk):
         self.campo_porta = tk.Entry(
             self.frame_conexao,
             font=("Courier", 10),
-            bg=COR_ENTRADA, fg=COR_TEXTO,
+            bg=COR_ENTRADA, fg=COR_TEXTO_CAMPO,
             relief='flat', bd=1,
-            insertbackground=COR_TEXTO
+            insertbackground=COR_TEXTO_CAMPO
         )
         self.campo_porta.insert(0, "8080")
         self.campo_porta.pack(fill='x', padx=40, pady=(2, 14))
@@ -79,7 +87,7 @@ class App(tk.Tk):
         # url do outro
         tk.Label(
             self.frame_conexao,
-            text="url do outro",
+            text="url do segundo usuário",
             font=("Helvetica", 8, "bold"),
             bg=COR_FUNDO, fg=COR_TEXTO, anchor='w'
         ).pack(fill='x', padx=40)
@@ -87,9 +95,9 @@ class App(tk.Tk):
         self.campo_url = tk.Entry(
             self.frame_conexao,
             font=("Courier", 10),
-            bg=COR_ENTRADA, fg=COR_TEXTO,
+            bg=COR_ENTRADA, fg=COR_TEXTO_CAMPO,
             relief='flat', bd=1,
-            insertbackground=COR_TEXTO
+            insertbackground=COR_TEXTO_CAMPO
         )
         self.campo_url.insert(0, "http://localhost:8081")
         self.campo_url.pack(fill='x', padx=40, pady=(2, 20))
@@ -197,7 +205,7 @@ class App(tk.Tk):
         self.area_msgs = scrolledtext.ScrolledText(
             self.frame_chat,
             font=("Courier", 9),
-            bg=COR_ENTRADA, fg=COR_TEXTO,
+            bg=COR_ENTRADA, fg=COR_TEXTO_CAMPO,
             relief='flat', bd=0,
             state='disabled',
             wrap='word',
@@ -206,9 +214,9 @@ class App(tk.Tk):
         )
         self.area_msgs.pack(fill='both', expand=True, padx=16, pady=(16, 8))
 
-        self.area_msgs.tag_config('eu',    foreground=COR_EU,    font=("Courier", 9, "bold"))
+        self.area_msgs.tag_config('eu', foreground=COR_EU,font=("Courier", 9, "bold"))
         self.area_msgs.tag_config('outro', foreground=COR_OUTRO, font=("Courier", 9, "bold"))
-        self.area_msgs.tag_config('sys',   foreground=COR_SYS,   font=("Courier", 8, "italic"))
+        self.area_msgs.tag_config('sys', foreground=COR_SYS, font=("Courier", 8, "italic"))
 
         frame_input = tk.Frame(self.frame_chat, bg=COR_FUNDO)
         frame_input.pack(fill='x', padx=16, pady=(0, 16))
@@ -216,9 +224,9 @@ class App(tk.Tk):
         self.campo_msg = tk.Entry(
             frame_input,
             font=("Courier", 10),
-            bg=COR_ENTRADA, fg=COR_TEXTO,
+            bg=COR_ENTRADA, fg=COR_TEXTO_CAMPO,
             relief='flat', bd=1,
-            insertbackground=COR_TEXTO
+            insertbackground=COR_TEXTO_CAMPO
         )
         self.campo_msg.pack(side='left', fill='x', expand=True, ipady=6)
         self.campo_msg.bind("<Return>", lambda e: self._on_enviar())

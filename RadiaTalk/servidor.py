@@ -11,16 +11,6 @@ from rsa import chave_publica_para_hex, chave_publica_de_hex, decifrar_mensagem
 # /\ HANDLER
 
 def _cria_handler(estado):
-    """
-    fábrica do handler: injeta o estado compartilhado via closure
-    estado é um dict com:
-        'chave_publica'       : (e, n) própria
-        'chave_privada'       : (d, n) própria
-        'chave_publica_outro' : (e, n) do outro (None até o handshake)
-        'cb_mensagem'         : callback chamado ao receber mensagem (texto)
-        'cb_handshake'        : callback chamado ao completar handshake
-    """
-
     class Handler(BaseHTTPRequestHandler):
 
         def _responde(self, codigo, corpo):

@@ -10,18 +10,18 @@ from interface import App
 # /\ ESTADO COMPARTILHADO
 
 estado = {
-    'chave_publica'       : None,
-    'chave_privada'       : None,
-    'chave_publica_outro' : None,
-    'url_outro'           : None,
+    'chave_publica': None,
+    'chave_privada': None,
+    'chave_publica_outro': None,
+    'url_outro': None,
 }
 
 estado_servidor = {
-    'chave_publica'       : None,
-    'chave_privada'       : None,
-    'chave_publica_outro' : None,
-    'cb_mensagem'         : None,
-    'cb_handshake'        : None,
+    'chave_publica': None,
+    'chave_privada': None,
+    'chave_publica_outro': None,
+    'cb_mensagem': None,
+    'cb_handshake': None,
 }
 
 servidor = None
@@ -119,7 +119,7 @@ if __name__ == '__main__':
     app.cb_conectar = on_conectar
     app.cb_enviar   = on_enviar
 
-    print("[main] ZipZop iniciado\n")
+    print("[main] RadiaTalk iniciado\n")
     app.mainloop()
 
     if servidor:
