@@ -1,5 +1,16 @@
-## Referências:
-1. Explicação AES: https://pt.stackoverflow.com/questions/43492/como-funciona-o-algoritmo-de-criptografia-aes
+# Criptografia e Segurança de Sistemas Computacionais
+
+Repositório dedicado ao estudo e às atividades da disciplina.
+
+**Requisitos Operacionais** para rodar as atividades: Sistema operacional Linux, gcc instalado
+
+# Como rodar cada atividade
+
+## RSA Puro
+1. Entre em /CSSC/
+2. `cd rsa`
+3. `gcc -std=c99 -Wall bigint.c rsa.c -o rsa_teste` 
+4. ./rsa_teste <- esse aqui é para rodar 
 
 # conectar o radiatalk
 

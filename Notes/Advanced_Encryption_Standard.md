@@ -107,3 +107,6 @@ O processo de decifragem consiste basicamente no inverso das etapas anteriorment
 2. Para desfazer a mistura de colunas, usa-se a matriz inversa.
 3. Faz-se um shift para a direita.
 4. E, por fim, para desfazer a primeira etapa faz-se uso de uma tabela S-Box invertida.
+
+## Referências:
+1. Explicação AES: https://pt.stackoverflow.com/questions/43492/como-funciona-o-algoritmo-de-criptografia-aes
