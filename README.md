@@ -6,11 +6,18 @@ Repositório dedicado ao estudo e às atividades da disciplina.
 
 # Como rodar cada atividade
 
+Dentro da pasta, abra o terminal e digite os comandos listados.
+
+## SHA256 Puro
+Fiz o SHA256 como Lib do Autenticador de Documentos, portanto acabei tendo que fazer um script de teste à parte para ele.
+1. `cd Document_Authentication`
+2. `gcc -o sha256_teste sha256_teste.c sha256.c`
+3. `./sha256_teste`
+
 ## RSA Puro
-1. Entre em /CSSC/
-2. `cd rsa`
-3. `gcc -std=c99 -Wall bigint.c rsa.c -o rsa_teste` 
-4. ./rsa_teste <- esse aqui é para rodar 
+1. `cd rsa`
+2. `gcc -std=c99 -Wall bigint.c rsa.c -o rsa_teste` 
+3. `./rsa_teste` <- esse aqui é para rodar 
 
 # conectar o radiatalk
 
