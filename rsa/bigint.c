@@ -79,17 +79,18 @@ int bigint_sub(BigInt *resultado, const BigInt *a, const BigInt *b){
 // o produto parcial acumula na posição correta do resultado
 // produto de dois uint32_t cabe exatamente em uint64_t sem perda
 void bigint_mul(BigInt *resultado, const BigInt *a, const BigInt *b){
-  // acumulador intermediário com o dobro de limbs para evitar overflow
-  uint64_t acc[BIGINT_LIMBS * 2];
+  // acumulador em __uint128_t: cada posição acumula até BIGINT_LIMBS=64
+  // produtos de uint32_t*uint32_t (max ~64 * 2^64 = 2^70), que nao cabe
+  // em uint64_t -- __uint128_t (max 2^128) absorve sem overflow
+  __uint128_t acc[BIGINT_LIMBS * 2];
   uint64_t produto;
   int i, j;
 
   memset(acc, 0, sizeof(acc));
 
-  //índices big-endian: o limb menos significativo está em [BIGINT_LIMBS-1]
-  //para i e j variando de 0 a BIGINT_LIMBS-1, o produto parcial a[i]*b[j]
-  //contribui para a posição i+j+1 no acumulador de tamanho duplo
-
+  // indices big-endian: o limb menos significativo esta em [BIGINT_LIMBS-1]
+  // para i e j variando de 0 a BIGINT_LIMBS-1, o produto parcial a[i]*b[j]
+  // contribui para a posicao i+j+1 no acumulador de tamanho duplo
   for (i = BIGINT_LIMBS - 1; i >= 0; i--){
     for (j = BIGINT_LIMBS - 1; j >= 0; j--){
       produto = (uint64_t)a->digitos[i] * (uint64_t)b->digitos[j];
@@ -97,14 +98,15 @@ void bigint_mul(BigInt *resultado, const BigInt *a, const BigInt *b){
     }
   }
 
-  // propagação de carries: cada posição pode ter acumulado vários produtos
+  // propagacao de carries: extrai os 32 bits baixos de cada posicao
+  // e passa o restante para a posicao anterior
   for (i = 2 * BIGINT_LIMBS - 1; i > 0; i--){
     acc[i - 1] += acc[i] >> 32;
     acc[i] &= 0xFFFFFFFF;
   }
 
   // copia os BIGINT_LIMBS limbs menos significativos para o resultado
-  // os BIGINT_LIMBS mais significativos são descartados (overflow)
+  // os BIGINT_LIMBS mais significativos sao descartados (overflow esperado no RSA)
   for (i = 0; i < BIGINT_LIMBS; i++){
     resultado->digitos[i] = (uint32_t)acc[BIGINT_LIMBS + i];
   }
@@ -249,57 +251,88 @@ void bigint_expmod(BigInt *resultado,
 
 // EUCLIDES ESTENDIDO
 
+// subtrai dois números com sinal representados como (magnitude, neg):
+//   resultado = (a, a_neg) - (b, b_neg)
+// escreve a magnitude em *res e o sinal em *res_neg (0=pos, 1=neg)
+static void signed_sub(BigInt *res, int *res_neg,
+                       const BigInt *a, int a_neg,
+                       const BigInt *b, int b_neg){
+  // subtração com sinal: a - b = a + (-b)
+  // inverte o sinal de b e usa a regra de soma com sinal
+  int b_neg_inv = !b_neg;
+
+  // sinais iguais após inversão -> soma magnitudes, sinal de a
+  if (a_neg == b_neg_inv){
+    bigint_add(res, a, b);
+    *res_neg = a_neg;
+    return;
+  }
+
+  // sinais opostos -> subtrai magnitude menor da maior
+  // sinal do resultado = sinal do maior em magnitude
+  int cmp = bigint_cmp(a, b);
+  if (cmp >= 0){
+    bigint_sub(res, a, b);
+    *res_neg = a_neg;
+  } else {
+    bigint_sub(res, b, a);
+    *res_neg = b_neg_inv;
+  }
+}
+
 // calcula mdc(a, b) e o coeficiente x tal q a*x ≡ mdc(a,b) (mod b)
 // quando mdc(a,b) == 1, x é o inverso modular de a em relação a b
 // usado para encontrar d tal q e*d ≡ 1 (mod φ(n))
 //
-// trabalha inteiramente com valores positivos usando a identidade:
-//   se o coeficiente fosse negativo, usa coef + modulo no lugar
+// os coeficientes s e t são naturalmente inteiros com sinal na recorrência
+// do algoritmo de Euclides Estendido. como BigInt não tem sinal, rastreamos
+// o sinal separadamente com flags int (0 = positivo, 1 = negativo).
+// ao final, se x for negativo, ajustamos: x = b - |x| (equivalente mod b).
 void bigint_mdc_estendido(BigInt *mdc_out, BigInt *x, BigInt *y,
                           const BigInt *a, const BigInt *b){
   BigInt r0, r1, s0, s1, t0, t1;
-  BigInt q, r, s_tmp, t_tmp, prod, diff;
-  BigInt zero, um;
+  BigInt q, r, prod, s_tmp, t_tmp;
+  BigInt zero;
+  int s0_neg, s1_neg, t0_neg, t1_neg;
+  int s_tmp_neg, t_tmp_neg;
 
   bigint_de_u32(&zero, 0);
-  bigint_de_u32(&um,   1);
 
-  r0 = *a;  bigint_de_u32(&s0, 1);  bigint_de_u32(&t0, 0);
-  r1 = *b;  bigint_de_u32(&s1, 0);  bigint_de_u32(&t1, 1);
+  r0 = *a;  bigint_de_u32(&s0, 1);  s0_neg = 0;
+            bigint_de_u32(&t0, 0);  t0_neg = 0;
+  r1 = *b;  bigint_de_u32(&s1, 0);  s1_neg = 0;
+            bigint_de_u32(&t1, 1);  t1_neg = 0;
 
   while (!bigint_igual(&r1, &zero)){
     // q = r0 / r1, r = r0 % r1
     bigint_divmod(&q, &r, &r0, &r1);
 
-    // s_tmp = s0 - q * s1 (mod b)
-    // reduz prod mod b antes de subtrair para manter valores dentro do BigInt
+    // s_tmp = s0 - q * s1  (aritmética com sinal completa)
     bigint_mul(&prod, &q, &s1);
-    bigint_divmod(&diff, &prod, &prod, b);
-    if (bigint_cmp(&s0, &prod) >= 0){
-      bigint_sub(&s_tmp, &s0, &prod);
-    } else {
-      bigint_sub(&diff, &prod, &s0);
-      bigint_sub(&s_tmp, b, &diff);
-    }
+    signed_sub(&s_tmp, &s_tmp_neg, &s0, s0_neg, &prod, s1_neg);
 
-    // t_tmp = t0 - q * t1 (mod b)
-    // reutiliza o mesmo q calculado acima (q = r0 / r1)
+    // t_tmp = t0 - q * t1
     bigint_mul(&prod, &q, &t1);
-    bigint_divmod(&diff, &prod, &prod, b);
-    if (bigint_cmp(&t0, &prod) >= 0){
-      bigint_sub(&t_tmp, &t0, &prod);
-    } else {
-      bigint_sub(&diff, &prod, &t0);
-      bigint_sub(&t_tmp, b, &diff);
-    }
+    signed_sub(&t_tmp, &t_tmp_neg, &t0, t0_neg, &prod, t1_neg);
 
-    r0 = r1;  s0 = s1;  t0 = t1;
-    r1 = r;   s1 = s_tmp; t1 = t_tmp;
+    r0 = r1;  s0 = s1;  s0_neg = s1_neg;  t0 = t1;  t0_neg = t1_neg;
+    r1 = r;   s1 = s_tmp; s1_neg = s_tmp_neg; t1 = t_tmp; t1_neg = t_tmp_neg;
   }
 
   *mdc_out = r0;
-  *x       = s0;
-  *y       = t0;
+
+  // ajusta x para o intervalo [0, b): se negativo, x = b - |x|
+  if (s0_neg && !bigint_igual(&s0, &zero)){
+    bigint_sub(x, b, &s0);
+  } else {
+    *x = s0;
+  }
+
+  if (t0_neg && !bigint_igual(&t0, &zero)){
+    bigint_sub(y, b, &t0);
+  } else {
+    *y = t0;
+  }
 }
 
 // /\ I/O HEXADECIMAL

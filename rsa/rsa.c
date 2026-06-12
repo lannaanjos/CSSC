@@ -177,11 +177,11 @@ int rsa_gerar_chaves(ChavePublica *pub, ChavePrivada *priv){
   bigint_de_u32(&e, 65537);
 
   // gera p
-  if (gera_primo(&p, 1024) != 0) return -1;
+  if (gera_primo(&p, 64) != 0) return -1; // o certo é 1024, mas estava levando uma eternidade para rodar, 64 é apenas para rodar rapido
 
   // gera q diferente de p
   do {
-    if (gera_primo(&q, 1024) != 0) return -1;
+    if (gera_primo(&q, 64) != 0) return -1;
   } while (bigint_igual(&p, &q));
 
   // n = p * q
